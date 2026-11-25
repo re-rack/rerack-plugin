@@ -57,6 +57,8 @@ struct EffectInfo
     int knobCount;
 };
 
+constexpr int kMaxKnobs = 16;
+
 int getEffectCount();
 const EffectInfo& getEffectInfo (int index);
 std::unique_ptr<IEngine> createEffectEngine (int index);

@@ -103,12 +103,16 @@ const KnobDef kGate[] = {
 const KnobDef kWahWah[] = {
     KNOB (gm2_wahwah_setup_raw, sweep, "sweep", "Sweep", 0, 100, 50, KnobKind::Int, KnobUnit::Percent, nullptr),
     KNOB (gm2_wahwah_setup_raw, range, "range", "Range", 0, 1, 0, KnobKind::Choice, KnobUnit::Plain, &kLowHigh),
+    KNOB (gm2_wahwah_setup_raw, mix, "mix", "Mix", 0, 100, 100, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_wahwah_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kTouchWah[] = {
     KNOB (gm2_touchwah_setup_raw, sense, "sense", "Sense", 0, 10, 5, KnobKind::Int, KnobUnit::Plain, nullptr),
     KNOB (gm2_touchwah_setup_raw, response, "response", "Response", 0, 2, 2, KnobKind::Choice, KnobUnit::Plain, &kResponse),
     KNOB (gm2_touchwah_setup_raw, range, "range", "Range", 0, 1, 0, KnobKind::Choice, KnobUnit::Plain, &kLowHigh),
+    KNOB (gm2_touchwah_setup_raw, mix, "mix", "Mix", 0, 100, 100, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_touchwah_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kAutoWah[] = {
@@ -116,12 +120,16 @@ const KnobDef kAutoWah[] = {
     KNOB (gm2_autowah_setup_raw, tempo, "tempo", "Tempo", 0, 16, 9, KnobKind::Choice, KnobUnit::Plain, &kTempo),
     KNOB (gm2_autowah_setup_raw, shape, "shape", "Shape", 0, 1, 1, KnobKind::Choice, KnobUnit::Plain, &kTriangleSine),
     KNOB (gm2_autowah_setup_raw, range, "range", "Range", 0, 1, 0, KnobKind::Choice, KnobUnit::Plain, &kLowHigh),
+    KNOB (gm2_autowah_setup_raw, mix, "mix", "Mix", 0, 100, 100, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_autowah_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kResFilter[] = {
     KNOB (gm2_resfilter_setup_raw, style, "style", "Style", 0, 1, 1, KnobKind::Choice, KnobUnit::Plain, &kStyle),
     KNOB (gm2_resfilter_setup_raw, hi_cut, "hi_cut", "Hi-Cut", 18, 57, 37, KnobKind::Int, KnobUnit::Cut, nullptr),
     KNOB (gm2_resfilter_setup_raw, resonance, "resonance", "Resonance", 0, 100, 100, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_resfilter_setup_raw, mix, "mix", "Mix", 0, 100, 100, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_resfilter_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kTouchRes[] = {
@@ -129,6 +137,8 @@ const KnobDef kTouchRes[] = {
     KNOB (gm2_touchres_setup_raw, sense, "sense", "Sense", 0, 10, 8, KnobKind::Int, KnobUnit::Plain, nullptr),
     KNOB (gm2_touchres_setup_raw, response, "response", "Response", 0, 2, 2, KnobKind::Choice, KnobUnit::Plain, &kResponse),
     KNOB (gm2_touchres_setup_raw, freq_max, "freq_max", "Freq Max", 34, 54, 54, KnobKind::Int, KnobUnit::Cut, nullptr),
+    KNOB (gm2_touchres_setup_raw, mix, "mix", "Mix", 0, 100, 100, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_touchres_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kTremolo[] = {
@@ -138,12 +148,14 @@ const KnobDef kTremolo[] = {
     KNOB (gm2_tremolo_setup_raw, type, "type", "Type", 0, 1, 0, KnobKind::Choice, KnobUnit::Plain, &kSoftHard),
     KNOB (gm2_tremolo_setup_raw, pulse_width, "pulse_width", "Pulse Width", 0, 100, 50, KnobKind::Int, KnobUnit::Percent, nullptr),
     KNOB (gm2_tremolo_setup_raw, hi_cut, "hi_cut", "Hi-Cut", 0, 60, 58, KnobKind::Int, KnobUnit::Cut, nullptr),
+    KNOB (gm2_tremolo_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kPanner[] = {
     KNOB (gm2_panner_setup_raw, speed, "speed", "Speed", 0, 208, 116, KnobKind::Int, KnobUnit::Speed, nullptr),
     KNOB (gm2_panner_setup_raw, width, "width", "Width", 0, 100, 100, KnobKind::Int, KnobUnit::Percent, nullptr),
     KNOB (gm2_panner_setup_raw, tempo, "tempo", "Tempo", 0, 16, 0, KnobKind::Choice, KnobUnit::Plain, &kTempo),
+    KNOB (gm2_panner_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kComp[] = {
@@ -159,17 +171,22 @@ const KnobDef kDetune[] = {
     KNOB (gm2_detune_setup_raw, voice_r, "voice_r", "Voice R", -100, 100, -9, KnobKind::Int, KnobUnit::Cents, nullptr),
     KNOB (gm2_detune_setup_raw, delay_l, "delay_l", "Delay L", 0, 50, 10, KnobKind::Int, KnobUnit::Milliseconds, nullptr),
     KNOB (gm2_detune_setup_raw, delay_r, "delay_r", "Delay R", 0, 50, 12, KnobKind::Int, KnobUnit::Milliseconds, nullptr),
+    KNOB (gm2_detune_setup_raw, mix, "mix", "Mix", 0, 100, 25, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_detune_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kWhammy[] = {
     KNOB (gm2_whammy_setup_raw, pitch, "pitch", "Pitch", 0, 100, 0, KnobKind::Int, KnobUnit::Percent, nullptr),
     KNOB (gm2_whammy_setup_raw, direction, "direction", "Direction", 0, 1, 1, KnobKind::Choice, KnobUnit::Plain, &kDownUp),
     KNOB (gm2_whammy_setup_raw, range, "range", "Range", 1, 2, 2, KnobKind::Choice, KnobUnit::Plain, &kOctaveRange),
+    KNOB (gm2_whammy_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kOctaver[] = {
     KNOB (gm2_octaver_setup_raw, direction, "direction", "Direction", 0, 1, 0, KnobKind::Choice, KnobUnit::Plain, &kDownUp),
     KNOB (gm2_octaver_setup_raw, range, "range", "Range", 1, 2, 1, KnobKind::Choice, KnobUnit::Plain, &kOctaveRange),
+    KNOB (gm2_octaver_setup_raw, mix, "mix", "Mix", 0, 100, 20, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_octaver_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kPitch[] = {
@@ -183,6 +200,8 @@ const KnobDef kPitch[] = {
     KNOB (gm2_pitch_setup_raw, feedback_2, "feedback_2", "Feedback 2", 0, 100, 0, KnobKind::Int, KnobUnit::Percent, nullptr),
     KNOB (gm2_pitch_setup_raw, level_1, "level_1", "Level 1", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
     KNOB (gm2_pitch_setup_raw, level_2, "level_2", "Level 2", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
+    KNOB (gm2_pitch_setup_raw, mix, "mix", "Mix", 0, 100, 25, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_pitch_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kIPitch[] = {
@@ -196,6 +215,8 @@ const KnobDef kIPitch[] = {
     KNOB (gm2_ipitch_setup_raw, scale, "scale", "Scale", 0, 17, 0, KnobKind::Choice, KnobUnit::Plain, &kScale),
     KNOB (gm2_ipitch_setup_raw, level_1, "level_1", "Level 1", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
     KNOB (gm2_ipitch_setup_raw, level_2, "level_2", "Level 2", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
+    KNOB (gm2_ipitch_setup_raw, mix, "mix", "Mix", 0, 100, 25, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_ipitch_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kCChorus[] = {
@@ -203,6 +224,8 @@ const KnobDef kCChorus[] = {
     KNOB (gm2_cchorus_setup_raw, depth, "depth", "Depth", 0, 100, 50, KnobKind::Int, KnobUnit::Percent, nullptr),
     KNOB (gm2_cchorus_setup_raw, tempo, "tempo", "Tempo", 0, 16, 0, KnobKind::Choice, KnobUnit::Plain, &kTempo),
     KNOB (gm2_cchorus_setup_raw, hi_cut, "hi_cut", "Hi-Cut", 0, 60, 58, KnobKind::Int, KnobUnit::Cut, nullptr),
+    KNOB (gm2_cchorus_setup_raw, mix, "mix", "Mix", 0, 100, 50, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_cchorus_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kAChorus[] = {
@@ -213,6 +236,8 @@ const KnobDef kAChorus[] = {
     KNOB (gm2_achorus_setup_raw, delay, "delay", "Delay", 1, 500, 140, KnobKind::Int, KnobUnit::AdvDelayMs, nullptr),
     KNOB (gm2_achorus_setup_raw, golden_ratio, "golden_ratio", "Golden Ratio", 0, 1, 1, KnobKind::Choice, KnobUnit::Plain, &kOffOn),
     KNOB (gm2_achorus_setup_raw, phase_reverse, "phase_reverse", "Phase Reverse", 0, 1, 1, KnobKind::Choice, KnobUnit::Plain, &kOffOn),
+    KNOB (gm2_achorus_setup_raw, mix, "mix", "Mix", 0, 100, 50, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_achorus_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kTriChorus[] = {
@@ -221,6 +246,8 @@ const KnobDef kTriChorus[] = {
     KNOB (gm2_trichorus_setup_raw, tempo, "tempo", "Tempo", 0, 16, 0, KnobKind::Choice, KnobUnit::Plain, &kTempo),
     KNOB (gm2_trichorus_setup_raw, width, "width", "Width", 1, 100, 50, KnobKind::Int, KnobUnit::Percent, nullptr),
     KNOB (gm2_trichorus_setup_raw, phase_reverse, "phase_reverse", "Phase Reverse", 0, 1, 1, KnobKind::Choice, KnobUnit::Plain, &kOffOn),
+    KNOB (gm2_trichorus_setup_raw, mix, "mix", "Mix", 0, 100, 50, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_trichorus_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kTriChorusAsym[] = {
@@ -229,6 +256,8 @@ const KnobDef kTriChorusAsym[] = {
     KNOB (gm2_trichorus_asym_setup_raw, tempo, "tempo", "Tempo", 0, 16, 0, KnobKind::Choice, KnobUnit::Plain, &kTempo),
     KNOB (gm2_trichorus_asym_setup_raw, width, "width", "Width", 1, 100, 50, KnobKind::Int, KnobUnit::Percent, nullptr),
     KNOB (gm2_trichorus_asym_setup_raw, phase_reverse, "phase_reverse", "Phase Reverse", 0, 1, 1, KnobKind::Choice, KnobUnit::Plain, &kOffOn),
+    KNOB (gm2_trichorus_asym_setup_raw, mix, "mix", "Mix", 0, 100, 50, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_trichorus_asym_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kCFlanger[] = {
@@ -238,6 +267,8 @@ const KnobDef kCFlanger[] = {
     KNOB (gm2_cflanger_setup_raw, hi_cut, "hi_cut", "Hi-Cut", 0, 60, 58, KnobKind::Int, KnobUnit::Cut, nullptr),
     KNOB (gm2_cflanger_setup_raw, feedback, "feedback", "Feedback", -100, 100, -80, KnobKind::Int, KnobUnit::Percent, nullptr),
     KNOB (gm2_cflanger_setup_raw, fb_cut, "fb_cut", "Feedback Hi-Cut", 0, 60, 54, KnobKind::Int, KnobUnit::Cut, nullptr),
+    KNOB (gm2_cflanger_setup_raw, mix, "mix", "Mix", 0, 100, 50, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_cflanger_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kAFlanger[] = {
@@ -250,6 +281,8 @@ const KnobDef kAFlanger[] = {
     KNOB (gm2_aflanger_setup_raw, delay, "delay", "Delay", 1, 500, 45, KnobKind::Int, KnobUnit::AdvDelayMs, nullptr),
     KNOB (gm2_aflanger_setup_raw, golden_ratio, "golden_ratio", "Golden Ratio", 0, 1, 1, KnobKind::Choice, KnobUnit::Plain, &kOffOn),
     KNOB (gm2_aflanger_setup_raw, phase_reverse, "phase_reverse", "Phase Reverse", 0, 1, 1, KnobKind::Choice, KnobUnit::Plain, &kOffOn),
+    KNOB (gm2_aflanger_setup_raw, mix, "mix", "Mix", 0, 100, 50, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_aflanger_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kTzFlangerNeg[] = {
@@ -258,6 +291,7 @@ const KnobDef kTzFlangerNeg[] = {
     KNOB (gm2_tzflanger_neg_setup_raw, tempo, "tempo", "Tempo", 0, 16, 0, KnobKind::Choice, KnobUnit::Plain, &kTempo),
     KNOB (gm2_tzflanger_neg_setup_raw, feedback, "feedback", "Feedback", -100, 100, -80, KnobKind::Int, KnobUnit::Percent, nullptr),
     KNOB (gm2_tzflanger_neg_setup_raw, fb_cut, "fb_cut", "Feedback Hi-Cut", 0, 60, 45, KnobKind::Int, KnobUnit::Cut, nullptr),
+    KNOB (gm2_tzflanger_neg_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kTzFlangerPos[] = {
@@ -266,6 +300,7 @@ const KnobDef kTzFlangerPos[] = {
     KNOB (gm2_tzflanger_pos_setup_raw, tempo, "tempo", "Tempo", 0, 16, 0, KnobKind::Choice, KnobUnit::Plain, &kTempo),
     KNOB (gm2_tzflanger_pos_setup_raw, feedback, "feedback", "Feedback", -100, 100, -80, KnobKind::Int, KnobUnit::Percent, nullptr),
     KNOB (gm2_tzflanger_pos_setup_raw, fb_cut, "fb_cut", "Feedback Hi-Cut", 0, 60, 45, KnobKind::Int, KnobUnit::Cut, nullptr),
+    KNOB (gm2_tzflanger_pos_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kVibrato[] = {
@@ -273,6 +308,7 @@ const KnobDef kVibrato[] = {
     KNOB (gm2_vibrato_setup_raw, depth, "depth", "Depth", 0, 100, 7, KnobKind::Int, KnobUnit::Percent, nullptr),
     KNOB (gm2_vibrato_setup_raw, tempo, "tempo", "Tempo", 0, 16, 0, KnobKind::Choice, KnobUnit::Plain, &kTempo),
     KNOB (gm2_vibrato_setup_raw, hi_cut, "hi_cut", "Hi-Cut", 0, 60, 58, KnobKind::Int, KnobUnit::Cut, nullptr),
+    KNOB (gm2_vibrato_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kVintPhaser[] = {
@@ -282,6 +318,8 @@ const KnobDef kVintPhaser[] = {
     KNOB (gm2_vintphaser_setup_raw, feedback, "feedback", "Feedback", -100, 100, -90, KnobKind::Int, KnobUnit::Percent, nullptr),
     KNOB (gm2_vintphaser_setup_raw, range, "range", "Range", 0, 1, 0, KnobKind::Choice, KnobUnit::Plain, &kLowHigh),
     KNOB (gm2_vintphaser_setup_raw, phase_reverse, "phase_reverse", "Phase Reverse", 0, 1, 0, KnobKind::Choice, KnobUnit::Plain, &kOffOn),
+    KNOB (gm2_vintphaser_setup_raw, mix, "mix", "Mix", 0, 100, 50, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_vintphaser_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kSmoothPhaser[] = {
@@ -291,6 +329,8 @@ const KnobDef kSmoothPhaser[] = {
     KNOB (gm2_smoothphaser_setup_raw, feedback, "feedback", "Feedback", -100, 100, -90, KnobKind::Int, KnobUnit::Percent, nullptr),
     KNOB (gm2_smoothphaser_setup_raw, range, "range", "Range", 0, 1, 0, KnobKind::Choice, KnobUnit::Plain, &kLowHigh),
     KNOB (gm2_smoothphaser_setup_raw, phase_reverse, "phase_reverse", "Phase Reverse", 0, 1, 1, KnobKind::Choice, KnobUnit::Plain, &kOffOn),
+    KNOB (gm2_smoothphaser_setup_raw, mix, "mix", "Mix", 0, 100, 50, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_smoothphaser_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kVintUnivibe[] = {
@@ -303,6 +343,8 @@ const KnobDef kVintUnivibe[] = {
     KNOB (gm2_vintunivibe_setup_raw, release, "release", "Release", 1, 100, 1, KnobKind::Int, KnobUnit::UnivibeSeconds, nullptr),
     KNOB (gm2_vintunivibe_setup_raw, select, "select", "Select", 0, 1, 0, KnobKind::Choice, KnobUnit::Plain, &kUnivibeSelect),
     KNOB (gm2_vintunivibe_setup_raw, phase_reverse, "phase_reverse", "Phase Reverse", 0, 1, 0, KnobKind::Choice, KnobUnit::Plain, &kOffOn),
+    KNOB (gm2_vintunivibe_setup_raw, mix, "mix", "Mix", 0, 100, 50, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_vintunivibe_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kModUnivibe[] = {
@@ -315,6 +357,8 @@ const KnobDef kModUnivibe[] = {
     KNOB (gm2_modunivibe_setup_raw, release, "release", "Release", 1, 100, 1, KnobKind::Int, KnobUnit::UnivibeSeconds, nullptr),
     KNOB (gm2_modunivibe_setup_raw, select, "select", "Select", 0, 1, 0, KnobKind::Choice, KnobUnit::Plain, &kUnivibeSelect),
     KNOB (gm2_modunivibe_setup_raw, phase_reverse, "phase_reverse", "Phase Reverse", 0, 1, 0, KnobKind::Choice, KnobUnit::Plain, &kOffOn),
+    KNOB (gm2_modunivibe_setup_raw, mix, "mix", "Mix", 0, 100, 50, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_modunivibe_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kPingPong[] = {
@@ -324,6 +368,8 @@ const KnobDef kPingPong[] = {
     KNOB (gm2_pingpong_setup_raw, feedback, "feedback", "Feedback", 0, 100, 45, KnobKind::Int, KnobUnit::Percent, nullptr),
     KNOB (gm2_pingpong_setup_raw, fb_hi_cut, "fb_hi_cut", "Feedback Hi-Cut", 40, 60, 54, KnobKind::Int, KnobUnit::Cut, nullptr),
     KNOB (gm2_pingpong_setup_raw, fb_lo_cut, "fb_lo_cut", "Feedback Lo-Cut", 0, 40, 10, KnobKind::Int, KnobUnit::Cut, nullptr),
+    KNOB (gm2_pingpong_setup_raw, mix, "mix", "Mix", 0, 100, 15, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_pingpong_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kDynDelay[] = {
@@ -336,6 +382,8 @@ const KnobDef kDynDelay[] = {
     KNOB (gm2_dyndelay_setup_raw, sense, "sense", "Sense", -50, 0, -25, KnobKind::Int, KnobUnit::Plain, nullptr),
     KNOB (gm2_dyndelay_setup_raw, damp, "damp", "Damp", 0, 100, 18, KnobKind::Int, KnobUnit::Decibels, nullptr),
     KNOB (gm2_dyndelay_setup_raw, release, "release", "Release", 11, 21, 14, KnobKind::Choice, KnobUnit::Plain, &kDynRelease),
+    KNOB (gm2_dyndelay_setup_raw, mix, "mix", "Mix", 0, 100, 15, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_dyndelay_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kDualDelay[] = {
@@ -349,6 +397,8 @@ const KnobDef kDualDelay[] = {
     KNOB (gm2_dualdelay_setup_raw, fb_lo_cut, "fb_lo_cut", "Feedback Lo-Cut", 0, 40, 12, KnobKind::Int, KnobUnit::Cut, nullptr),
     KNOB (gm2_dualdelay_setup_raw, pan_1, "pan_1", "Pan 1", -50, 50, -30, KnobKind::Int, KnobUnit::Plain, nullptr),
     KNOB (gm2_dualdelay_setup_raw, pan_2, "pan_2", "Pan 2", -50, 50, 35, KnobKind::Int, KnobUnit::Plain, nullptr),
+    KNOB (gm2_dualdelay_setup_raw, mix, "mix", "Mix", 0, 100, 15, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_dualdelay_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 const KnobDef kRevDelay[] = {
@@ -357,11 +407,13 @@ const KnobDef kRevDelay[] = {
     KNOB (gm2_revdelay_setup_raw, feedback, "feedback", "Feedback", 0, 100, 30, KnobKind::Int, KnobUnit::Percent, nullptr),
     KNOB (gm2_revdelay_setup_raw, fb_hi_cut, "fb_hi_cut", "Feedback Hi-Cut", 40, 60, 54, KnobKind::Int, KnobUnit::Cut, nullptr),
     KNOB (gm2_revdelay_setup_raw, fb_lo_cut, "fb_lo_cut", "Feedback Lo-Cut", 0, 40, 10, KnobKind::Int, KnobUnit::Cut, nullptr),
+    KNOB (gm2_revdelay_setup_raw, mix, "mix", "Mix", 0, 100, 15, KnobKind::Int, KnobUnit::Percent, nullptr),
+    KNOB (gm2_revdelay_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr),
 };
 
 #define REVERB_KNOBS(decayDefault, preDelayDefault, shapeDefault, sizeDefault, hiColorDefault, \
                      hiFactorDefault, loColorDefault, loFactorDefault, roomDefault,           \
-                     reverbDefault, diffuseDefault)                                           \
+                     reverbDefault, diffuseDefault, mixDefault)                               \
     KNOB (gm2_reverb_setup_raw, decay, "decay", "Decay", 1, 200, decayDefault, KnobKind::Int, KnobUnit::ReverbDecay, nullptr), \
     KNOB (gm2_reverb_setup_raw, pre_delay, "pre_delay", "Pre-Delay", 0, 100, preDelayDefault, KnobKind::Int, KnobUnit::Milliseconds, nullptr), \
     KNOB (gm2_reverb_setup_raw, shape, "shape", "Shape", 0, 2, shapeDefault, KnobKind::Choice, KnobUnit::Plain, &kReverbShape), \
@@ -372,15 +424,24 @@ const KnobDef kRevDelay[] = {
     KNOB (gm2_reverb_setup_raw, lo_factor, "lo_factor", "Lo Factor", -25, 25, loFactorDefault, KnobKind::Int, KnobUnit::Plain, nullptr), \
     KNOB (gm2_reverb_setup_raw, room_level, "room_level", "Room Level", -100, 0, roomDefault, KnobKind::Int, KnobUnit::Decibels, nullptr), \
     KNOB (gm2_reverb_setup_raw, reverb_level, "reverb_level", "Reverb Level", -100, 0, reverbDefault, KnobKind::Int, KnobUnit::Decibels, nullptr), \
-    KNOB (gm2_reverb_setup_raw, diffuse, "diffuse", "Diffuse", -25, 25, diffuseDefault, KnobKind::Int, KnobUnit::Plain, nullptr)
+    KNOB (gm2_reverb_setup_raw, diffuse, "diffuse", "Diffuse", -25, 25, diffuseDefault, KnobKind::Int, KnobUnit::Plain, nullptr), \
+    KNOB (gm2_reverb_setup_raw, mix, "mix", "Mix", 0, 100, mixDefault, KnobKind::Int, KnobUnit::Percent, nullptr), \
+    KNOB (gm2_reverb_setup_raw, out_level, "out_level", "Out Level", -100, 0, 0, KnobKind::Int, KnobUnit::Decibels, nullptr)
 
-const KnobDef kReverbSpring[] = { REVERB_KNOBS (20, 0, 0, 3, 4, 6, 3, 0, 0, -3, 10) };
-const KnobDef kReverbHall[] = { REVERB_KNOBS (25, 50, 0, 4, 3, 0, 4, 9, 0, -6, 0) };
-const KnobDef kReverbRoom[] = { REVERB_KNOBS (12, 40, 0, 3, 2, 0, 4, 9, 0, -6, 0) };
-const KnobDef kReverbPlate[] = { REVERB_KNOBS (15, 5, 1, 3, 1, 5, 5, 6, 0, -6, 10) };
+const KnobDef kReverbSpring[] = { REVERB_KNOBS (20, 0, 0, 3, 4, 6, 3, 0, 0, -3, 10, 20) };
+const KnobDef kReverbHall[] = { REVERB_KNOBS (25, 50, 0, 4, 3, 0, 4, 9, 0, -6, 0, 25) };
+const KnobDef kReverbRoom[] = { REVERB_KNOBS (12, 40, 0, 3, 2, 0, 4, 9, 0, -6, 0, 25) };
+const KnobDef kReverbPlate[] = { REVERB_KNOBS (15, 5, 1, 3, 1, 5, 5, 6, 0, -6, 10, 16) };
+
+template <size_t N>
+constexpr int knobCount (const KnobDef (&)[N])
+{
+    static_assert (N <= (size_t) kMaxKnobs, "effect exceeds the processor's knob capacity");
+    return (int) N;
+}
 
 #define EFFECT(keyValue, nameValue, familyValue, table) \
-    { keyValue, nameValue, familyValue, table, (int) (sizeof (table) / sizeof (table)[0]) }
+    { keyValue, nameValue, familyValue, table, knobCount (table) }
 
 const EffectInfo kEffects[] = {
     EFFECT ("eq", "Three-Band EQ", "Gate & EQ", kEq),

@@ -10,15 +10,19 @@ constexpr int kGap = 6;
 constexpr int kComboHeight = 28;
 constexpr int kLabelWidth = 150;
 constexpr int kWidth = 480;
-constexpr int kRowsHeight = 11 * kRowHeight + 10 * kGap;
-constexpr int kHeight = kMargin + kComboHeight + kGap + kRowsHeight + kMargin;
 } // namespace
 
 GMajor2AudioProcessorEditor::GMajor2AudioProcessorEditor (GMajor2AudioProcessor& processorToUse)
     : AudioProcessorEditor (&processorToUse), processor (processorToUse)
 {
     setResizable (false, false);
-    setSize (kWidth, kHeight);
+
+    int rows = 0;
+    for (int i = 0; i < getEffectCount(); ++i)
+        rows = juce::jmax (rows, getEffectInfo (i).knobCount);
+
+    setSize (kWidth,
+             kMargin + kComboHeight + kGap + rows * kRowHeight + (rows - 1) * kGap + kMargin);
 
     juce::String previousFamily;
 

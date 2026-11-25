@@ -138,7 +138,7 @@ private:
     typename M::Raw raw {};
     typename M::Config config {};
     std::unique_ptr<typename M::State> state;
-    std::array<int, 16> snapshot {};
+    std::array<int, kMaxKnobs> snapshot {};
     int snapshotCount = -1;
     double snapshotBeat = std::numeric_limits<double>::quiet_NaN();
     bool valid = false;

@@ -25,6 +25,14 @@ The VST3 is written to
 `build/GMajor2_artefacts/Release/VST3/GMajor2.vst3`. Pass
 `-DGM2_DIR=/path/to/libgmajor2` if the library is not next to this project.
 
+## Mix and Out Level
+
+Where the device has them, an effect exposes Mix (0 to 100 %) and Out Level (-100
+to 0 dB) with the device's factory defaults. Both are passed to the library raw:
+the effect does the device's equal-power dry/wet blend and folds Out Level into
+its level words, so the plugin adds no gain or smoothing of its own. The EQ, Noise
+Gate and Compressor have neither knob, as on the device.
+
 ## Sample rates
 
 Effects run directly at host rates up to 48 kHz, including 44.1 and 48 kHz, with

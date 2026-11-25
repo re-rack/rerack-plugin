@@ -303,7 +303,7 @@ void GMajor2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
                                           juce::roundToInt (effectValue->load()));
     const auto& info = getEffectInfo (effectIndex);
 
-    std::array<int, 16> values {};
+    std::array<int, kMaxKnobs> values {};
     for (int i = 0; i < info.knobCount; ++i)
     {
         const auto& knob = info.knobs[i];
