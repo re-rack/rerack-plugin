@@ -136,11 +136,13 @@ GMajor2AudioProcessor::GMajor2AudioProcessor()
 {
     const int count = getEffectCount();
     engines.reserve ((size_t) count);
+    depopEngines.reserve ((size_t) count);
     knobValues.resize ((size_t) count);
 
     for (int effect = 0; effect < count; ++effect)
     {
         engines.push_back (createEffectEngine (effect));
+        depopEngines.push_back (createDepopEngine (effect));
 
         const auto& info = getEffectInfo (effect);
         knobValues[(size_t) effect].resize ((size_t) info.knobCount);
@@ -151,6 +153,7 @@ GMajor2AudioProcessor::GMajor2AudioProcessor()
     }
 
     effectValue = apvts.getRawParameterValue ("effect");
+    depopValue = apvts.getRawParameterValue ("depop");
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout GMajor2AudioProcessor::createParameterLayout()
@@ -163,6 +166,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout GMajor2AudioProcessor::creat
 
     layout.add (std::make_unique<juce::AudioParameterChoice> (juce::ParameterID { "effect", 1 },
                                                              "Effect", effectNames, 0));
+    layout.add (std::make_unique<juce::AudioParameterBool> (juce::ParameterID { "depop", 1 },
+                                                           "De-pop", true));
 
     for (int effect = 0; effect < getEffectCount(); ++effect)
     {
@@ -241,7 +246,7 @@ void GMajor2AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
         setLatencySamples (0);
     }
 
-    currentEffect = -1;
+    currentEngine = nullptr;
     lastPpqValid = false;
     wasPlaying = false;
     alignPending = false;
@@ -313,21 +318,25 @@ void GMajor2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
                                  : juce::roundToInt (raw);
     }
 
-    auto& engine = engines[(size_t) effectIndex];
+    // Flipping De-pop restarts the effect's state, as switching effects does.
+    const auto& depopEngine = depopEngines[(size_t) effectIndex];
+    IEngine& engine = depopValue->load() >= 0.5f && depopEngine != nullptr
+                          ? *depopEngine
+                          : *engines[(size_t) effectIndex];
 
-    if (effectIndex != currentEffect)
+    if (&engine != currentEngine)
     {
-        currentEffect = effectIndex;
-        engine->prepare (context, values.data(), beatMs);
+        currentEngine = &engine;
+        engine.prepare (context, values.data(), beatMs);
         alignPending = true;
         lastPpqValid = false;
     }
     else
     {
-        engine->update (values.data(), beatMs);
+        engine.update (values.data(), beatMs);
     }
 
-    if (engine->isValid() && playing && std::isfinite (ppq))
+    if (engine.isValid() && playing && std::isfinite (ppq))
     {
         double alignedPpq = ppq;
 
@@ -343,7 +352,7 @@ void GMajor2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         }
 
         if (doAlign)
-            engine->align (alignedPpq);
+            engine.align (alignedPpq);
 
         lastPpq = alignedPpq;
         lastPpqValid = true;
@@ -366,7 +375,7 @@ void GMajor2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
 
     if (resampleFactor == 1)
     {
-        engine->process (left, right, left, right, numSamples);
+        engine.process (left, right, left, right, numSamples);
         return;
     }
 
@@ -378,8 +387,8 @@ void GMajor2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         const int baseFrames = resampler.down (left + position, right + position, chunk);
 
         if (baseFrames > 0)
-            engine->process (resampler.getBase (0), resampler.getBase (1), resampler.getBase (0),
-                             resampler.getBase (1), baseFrames);
+            engine.process (resampler.getBase (0), resampler.getBase (1), resampler.getBase (0),
+                            resampler.getBase (1), baseFrames);
 
         resampler.up (baseFrames, left + position, right + position, chunk);
         position += chunk;

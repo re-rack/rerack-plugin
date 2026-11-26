@@ -46,8 +46,10 @@ private:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
     std::vector<std::unique_ptr<IEngine>> engines;
+    std::vector<std::unique_ptr<IEngine>> depopEngines;
     std::vector<std::vector<std::atomic<float>*>> knobValues;
     std::atomic<float>* effectValue = nullptr;
+    std::atomic<float>* depopValue = nullptr;
 
     gm2_context context {};
     Resampler resampler;
@@ -56,7 +58,7 @@ private:
     int resampleFactor = 1;
     bool passThrough = false;
 
-    int currentEffect = -1;
+    const IEngine* currentEngine = nullptr;
     double lastPpq = 0.0;
     bool lastPpqValid = false;
     bool wasPlaying = false;

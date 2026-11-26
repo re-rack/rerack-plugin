@@ -33,6 +33,16 @@ the effect does the device's equal-power dry/wet blend and folds Out Level into
 its level words, so the plugin adds no gain or smoothing of its own. The EQ, Noise
 Gate and Compressor have neither knob, as on the device.
 
+## De-pop
+
+Some knobs click when turned fast, because the device does. The De-pop switch
+(on by default) runs the library's de-popped variant of the effects that have one:
+the Three-Band EQ, the Resonance Filter, both Pitch Shifters, the Reverse Delay
+and the four Reverbs. A variant gives the effect's own output, sample for sample,
+once its knobs have settled, and costs about twice the effect while a knob moves.
+For the other effects the switch is greyed out. Flipping it restarts the effect,
+as switching effects does.
+
 ## Sample rates
 
 Effects run directly at host rates up to 48 kHz, including 44.1 and 48 kHz, with
@@ -54,4 +64,5 @@ jump.
 - `Source/EffectEngine.h` - templated engine wrapper around each library module
 - `Source/Resampler.*` - host-rate to base-rate conversion
 - `tests/resampler_test.cpp` - standalone resampler test
+- `tests/depop_test.cpp` - the De-pop engines against their effects
 - `CMakeLists.txt` - JUCE fetch, plugin target, test target

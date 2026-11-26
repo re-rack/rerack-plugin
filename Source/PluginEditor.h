@@ -25,10 +25,12 @@ private:
 
     GMajor2AudioProcessor& processor;
     juce::ComboBox effectBox;
+    juce::ToggleButton depopButton { "De-pop" };
     std::vector<std::unique_ptr<juce::Component>> rowComponents;
     std::vector<std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>> sliderAttachments;
     std::vector<std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment>> comboAttachments;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> effectAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> depopAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GMajor2AudioProcessorEditor)
 };

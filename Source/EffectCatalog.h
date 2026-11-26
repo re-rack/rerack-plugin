@@ -55,6 +55,7 @@ struct EffectInfo
     const char* family;
     const KnobDef* knobs;
     int knobCount;
+    bool depop; // the library has a de-popped variant of it, gm2_X_alt
 };
 
 constexpr int kMaxKnobs = 16;
@@ -62,3 +63,4 @@ constexpr int kMaxKnobs = 16;
 int getEffectCount();
 const EffectInfo& getEffectInfo (int index);
 std::unique_ptr<IEngine> createEffectEngine (int index);
+std::unique_ptr<IEngine> createDepopEngine (int index); // null when the effect has no variant

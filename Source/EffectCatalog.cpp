@@ -1,6 +1,7 @@
 #include "EffectEngine.h"
 
 #include <cstddef>
+#include <string>
 
 namespace
 {
@@ -441,15 +442,18 @@ constexpr int knobCount (const KnobDef (&)[N])
 }
 
 #define EFFECT(keyValue, nameValue, familyValue, table) \
-    { keyValue, nameValue, familyValue, table, knobCount (table) }
+    { keyValue, nameValue, familyValue, table, knobCount (table), false }
+
+#define EFFECT_DEPOP(keyValue, nameValue, familyValue, table) \
+    { keyValue, nameValue, familyValue, table, knobCount (table), true }
 
 const EffectInfo kEffects[] = {
-    EFFECT ("eq", "Three-Band EQ", "Gate & EQ", kEq),
+    EFFECT_DEPOP ("eq", "Three-Band EQ", "Gate & EQ", kEq),
     EFFECT ("gate", "Noise Gate", "Gate & EQ", kGate),
     EFFECT ("wahwah", "Wah-Wah", "Filter", kWahWah),
     EFFECT ("touchwah", "Touch Wah", "Filter", kTouchWah),
     EFFECT ("autowah", "Auto Wah", "Filter", kAutoWah),
-    EFFECT ("resfilter", "Resonance Filter", "Filter", kResFilter),
+    EFFECT_DEPOP ("resfilter", "Resonance Filter", "Filter", kResFilter),
     EFFECT ("touchres", "Touch Resonance Filter", "Filter", kTouchRes),
     EFFECT ("tremolo", "Tremolo", "Filter", kTremolo),
     EFFECT ("panner", "Panner", "Filter", kPanner),
@@ -457,8 +461,8 @@ const EffectInfo kEffects[] = {
     EFFECT ("detune", "Detune", "Pitch", kDetune),
     EFFECT ("whammy", "Whammy", "Pitch", kWhammy),
     EFFECT ("octaver", "Octaver", "Pitch", kOctaver),
-    EFFECT ("pitch", "Pitch Shifter", "Pitch", kPitch),
-    EFFECT ("ipitch", "Intelligent Pitch Shifter", "Pitch", kIPitch),
+    EFFECT_DEPOP ("pitch", "Pitch Shifter", "Pitch", kPitch),
+    EFFECT_DEPOP ("ipitch", "Intelligent Pitch Shifter", "Pitch", kIPitch),
     EFFECT ("cchorus", "Classic Chorus", "Modulation", kCChorus),
     EFFECT ("achorus", "Advanced Chorus", "Modulation", kAChorus),
     EFFECT ("trichorus", "Tri-Chorus", "Modulation", kTriChorus),
@@ -475,14 +479,15 @@ const EffectInfo kEffects[] = {
     EFFECT ("pingpong", "Ping Pong Delay", "Delay", kPingPong),
     EFFECT ("dyndelay", "Dynamic Delay", "Delay", kDynDelay),
     EFFECT ("dualdelay", "Dual Delay", "Delay", kDualDelay),
-    EFFECT ("revdelay", "Reverse Delay", "Delay", kRevDelay),
-    EFFECT ("reverb_spring", "Spring Reverb", "Reverb", kReverbSpring),
-    EFFECT ("reverb_hall", "Hall Reverb", "Reverb", kReverbHall),
-    EFFECT ("reverb_room", "Room Reverb", "Reverb", kReverbRoom),
-    EFFECT ("reverb_plate", "Plate Reverb", "Reverb", kReverbPlate),
+    EFFECT_DEPOP ("revdelay", "Reverse Delay", "Delay", kRevDelay),
+    EFFECT_DEPOP ("reverb_spring", "Spring Reverb", "Reverb", kReverbSpring),
+    EFFECT_DEPOP ("reverb_hall", "Hall Reverb", "Reverb", kReverbHall),
+    EFFECT_DEPOP ("reverb_room", "Room Reverb", "Reverb", kReverbRoom),
+    EFFECT_DEPOP ("reverb_plate", "Plate Reverb", "Reverb", kReverbPlate),
 };
 
 #undef EFFECT
+#undef EFFECT_DEPOP
 
 constexpr int kEffectCount = (int) (sizeof (kEffects) / sizeof (kEffects[0]));
 
@@ -567,6 +572,13 @@ GM2_TRAITS_BEAT (DualDelayTraits, dualdelay);
 GM2_TRAITS_BEAT (RevDelayTraits, revdelay);
 GM2_TRAITS (ReverbTraits, reverb);
 
+GM2_TRAITS (EqAltTraits, eq_alt);
+GM2_TRAITS (ResFilterAltTraits, resfilter_alt);
+GM2_TRAITS (PitchAltTraits, pitch_alt);
+GM2_TRAITS (IPitchAltTraits, ipitch_alt);
+GM2_TRAITS_BEAT (RevDelayAltTraits, revdelay_alt);
+GM2_TRAITS (ReverbAltTraits, reverb_alt);
+
 #undef GM2_TRAITS_MEMBERS
 #undef GM2_TRAITS
 #undef GM2_TRAITS_BEAT
@@ -627,6 +639,30 @@ std::unique_ptr<IEngine> createEffectEngine (int index)
         case 35: return std::make_unique<Engine<ReverbTraits>> (kEffects[35]);
         default: break;
     }
+
+    return {};
+}
+
+std::unique_ptr<IEngine> createDepopEngine (int index)
+{
+    if (index < 0 || index >= kEffectCount || ! kEffects[index].depop)
+        return {};
+
+    const auto& info = kEffects[index];
+    const std::string key (info.key);
+
+    if (key == "eq")
+        return std::make_unique<Engine<EqAltTraits>> (info);
+    if (key == "resfilter")
+        return std::make_unique<Engine<ResFilterAltTraits>> (info);
+    if (key == "pitch")
+        return std::make_unique<Engine<PitchAltTraits>> (info);
+    if (key == "ipitch")
+        return std::make_unique<Engine<IPitchAltTraits>> (info);
+    if (key == "revdelay")
+        return std::make_unique<Engine<RevDelayAltTraits>> (info);
+    if (key.rfind ("reverb_", 0) == 0)
+        return std::make_unique<Engine<ReverbAltTraits>> (info);
 
     return {};
 }

@@ -8,6 +8,7 @@ constexpr int kMargin = 12;
 constexpr int kRowHeight = 28;
 constexpr int kGap = 6;
 constexpr int kComboHeight = 28;
+constexpr int kToggleHeight = 24;
 constexpr int kLabelWidth = 150;
 constexpr int kWidth = 480;
 } // namespace
@@ -22,7 +23,8 @@ GMajor2AudioProcessorEditor::GMajor2AudioProcessorEditor (GMajor2AudioProcessor&
         rows = juce::jmax (rows, getEffectInfo (i).knobCount);
 
     setSize (kWidth,
-             kMargin + kComboHeight + kGap + rows * kRowHeight + (rows - 1) * kGap + kMargin);
+             kMargin + kComboHeight + kGap + kToggleHeight + kGap + rows * kRowHeight
+                 + (rows - 1) * kGap + kMargin);
 
     juce::String previousFamily;
 
@@ -43,6 +45,12 @@ GMajor2AudioProcessorEditor::GMajor2AudioProcessorEditor (GMajor2AudioProcessor&
     effectAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment> (
         processor.apvts, "effect", effectBox);
 
+    depopButton.setTooltip ("Removes the clicks the device makes when this effect's knobs turn "
+                            "fast; once they settle the output is the device's.");
+    addAndMakeVisible (depopButton);
+    depopAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment> (
+        processor.apvts, "depop", depopButton);
+
     processor.apvts.addParameterListener ("effect", this);
     rebuildRows();
 }
@@ -56,6 +64,7 @@ GMajor2AudioProcessorEditor::~GMajor2AudioProcessorEditor()
     comboAttachments.clear();
     rowComponents.clear();
     effectAttachment.reset();
+    depopAttachment.reset();
 }
 
 void GMajor2AudioProcessorEditor::paint (juce::Graphics& g)
@@ -84,6 +93,7 @@ void GMajor2AudioProcessorEditor::rebuildRows()
     const int effectIndex = juce::jlimit (0, getEffectCount() - 1,
                                           juce::roundToInt (effectValue->load()));
     const auto& info = getEffectInfo (effectIndex);
+    depopButton.setEnabled (info.depop);
 
     for (int i = 0; i < info.knobCount; ++i)
     {
@@ -128,10 +138,12 @@ void GMajor2AudioProcessorEditor::rebuildRows()
 void GMajor2AudioProcessorEditor::resized()
 {
     effectBox.setBounds (kMargin, kMargin, getWidth() - 2 * kMargin, kComboHeight);
+    depopButton.setBounds (kMargin, kMargin + kComboHeight + kGap, getWidth() - 2 * kMargin,
+                           kToggleHeight);
 
     const int controlX = kMargin + kLabelWidth + 8;
     const int controlWidth = getWidth() - controlX - kMargin;
-    int y = kMargin + kComboHeight + kGap;
+    int y = kMargin + kComboHeight + kGap + kToggleHeight + kGap;
 
     for (size_t i = 0; i + 1 < rowComponents.size(); i += 2)
     {

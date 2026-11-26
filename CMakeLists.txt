@@ -93,3 +93,16 @@ set_target_properties(resampler_test PROPERTIES
     CXX_EXTENSIONS OFF)
 target_compile_options(resampler_test PRIVATE -Wall -Wextra -Wpedantic -Wshadow -Wconversion)
 add_test(NAME resampler_test COMMAND resampler_test)
+
+add_executable(depop_test
+    tests/depop_test.cpp
+    Source/EffectCatalog.cpp)
+
+target_include_directories(depop_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Source")
+set_target_properties(depop_test PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF)
+target_compile_options(depop_test PRIVATE -Wall -Wextra -Wpedantic -Wshadow -Wconversion)
+target_link_libraries(depop_test PRIVATE gm2)
+add_test(NAME depop_test COMMAND depop_test)
