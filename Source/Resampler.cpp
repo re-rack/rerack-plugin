@@ -2,27 +2,193 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 
 namespace
 {
 constexpr double kPi = 3.14159265358979323846;
+constexpr double kStopbandDb = 100.0;
+constexpr int kMaxHalfbandOrder = 256;
 
-double besselI0 (double x)
+struct Halfband
 {
-    const double y = 0.25 * x * x;
-    double term = 1.0;
-    double sum = 1.0;
+    std::vector<double> taps;
+    double ripple = 0.0;
+};
 
-    for (int k = 1; k < 200; ++k)
+// Equiripple halfband lowpass of 4 * order - 1 taps, flat up to `passband` (a
+// fraction of its input rate, below 0.25). H(z) = (z^-(2 order - 1) + G(z^2)) / 2,
+// so the Remez exchange designs the 2 * order-tap G against 1 over G's passband,
+// and H's passband and stopband ripple are both half of G's error.
+Halfband designHalfband (int order, double passband)
+{
+    const int gridSize = 32 * order + 1;
+    const double edge = 4.0 * kPi * passband;
+
+    // G's amplitude is cos (w / 2) P (cos w) with P a polynomial of degree order - 1,
+    // so its error against 1 is weight * (desired - P).
+    std::vector<double> x ((std::size_t) gridSize), weight ((std::size_t) gridSize),
+        desired ((std::size_t) gridSize), error ((std::size_t) gridSize);
+
+    for (int g = 0; g < gridSize; ++g)
     {
-        const double kd = static_cast<double> (k);
-        term *= y / (kd * kd);
-        sum += term;
-        if (term <= sum * 1.0e-16)
+        const double w = edge * g / (gridSize - 1);
+        x[(std::size_t) g] = std::cos (w);
+        weight[(std::size_t) g] = std::cos (0.5 * w);
+        desired[(std::size_t) g] = 1.0 / weight[(std::size_t) g];
+    }
+
+    std::vector<int> extremal ((std::size_t) order + 1);
+    for (int i = 0; i <= order; ++i)
+        extremal[(std::size_t) i] = (int) std::lround ((double) i * (gridSize - 1) / order);
+
+    std::vector<double> nodes ((std::size_t) order), values ((std::size_t) order),
+        bary ((std::size_t) order);
+
+    const auto polynomial = [&] (double at) {
+        double numerator = 0.0;
+        double denominator = 0.0;
+
+        for (std::size_t i = 0; i < nodes.size(); ++i)
+        {
+            if (at == nodes[i])
+                return values[i];
+
+            const double term = bary[i] / (at - nodes[i]);
+            numerator += term * values[i];
+            denominator += term;
+        }
+
+        return numerator / denominator;
+    };
+
+    double maxError = 0.0;
+
+    for (int iteration = 0; iteration < 100; ++iteration)
+    {
+        double numerator = 0.0;
+        double denominator = 0.0;
+
+        for (int i = 0; i <= order; ++i)
+        {
+            const auto gi = (std::size_t) extremal[(std::size_t) i];
+            double a = 1.0;
+            for (int j = 0; j <= order; ++j)
+                if (j != i)
+                    a /= x[gi] - x[(std::size_t) extremal[(std::size_t) j]];
+
+            numerator += a * desired[gi];
+            denominator += ((i & 1) != 0 ? -a : a) / weight[gi];
+        }
+
+        const double delta = numerator / denominator;
+
+        for (int i = 0; i < order; ++i)
+        {
+            const auto gi = (std::size_t) extremal[(std::size_t) i];
+            nodes[(std::size_t) i] = x[gi];
+            values[(std::size_t) i] = desired[gi] - ((i & 1) != 0 ? -delta : delta) / weight[gi];
+
+            double b = 1.0;
+            for (int j = 0; j < order; ++j)
+                if (j != i)
+                    b /= x[gi] - x[(std::size_t) extremal[(std::size_t) j]];
+
+            bary[(std::size_t) i] = b;
+        }
+
+        maxError = 0.0;
+        for (std::size_t g = 0; g < error.size(); ++g)
+        {
+            error[g] = weight[g] * (desired[g] - polynomial (x[g]));
+            maxError = std::max (maxError, std::abs (error[g]));
+        }
+
+        if (maxError - std::abs (delta) <= 1.0e-9 * maxError)
+            break;
+
+        std::vector<int> next;
+        for (int g = 0; g < gridSize; ++g)
+        {
+            const double e = error[(std::size_t) g];
+            const bool aboveLeft = g == 0 || (e > 0.0 ? e >= error[(std::size_t) g - 1]
+                                                      : e <= error[(std::size_t) g - 1]);
+            const bool aboveRight = g == gridSize - 1 || (e > 0.0 ? e > error[(std::size_t) g + 1]
+                                                                  : e < error[(std::size_t) g + 1]);
+            if (! aboveLeft || ! aboveRight)
+                continue;
+
+            if (! next.empty() && (e > 0.0) == (error[(std::size_t) next.back()] > 0.0))
+            {
+                if (std::abs (e) > std::abs (error[(std::size_t) next.back()]))
+                    next.back() = g;
+            }
+            else
+            {
+                next.push_back (g);
+            }
+        }
+
+        while ((int) next.size() > order + 1)
+        {
+            if (std::abs (error[(std::size_t) next.front()]) < std::abs (error[(std::size_t) next.back()]))
+                next.erase (next.begin());
+            else
+                next.pop_back();
+        }
+
+        if ((int) next.size() < order + 1)
+            break;
+
+        extremal = next;
+    }
+
+    // P's Chebyshev coefficients, from its values at the Chebyshev nodes.
+    std::vector<double> chebyshev ((std::size_t) order + 1, 0.0);
+    for (int m = 0; m < order; ++m)
+    {
+        double sum = 0.0;
+        for (int j = 0; j < order; ++j)
+        {
+            const double angle = kPi * (j + 0.5) / order;
+            sum += polynomial (std::cos (angle)) * std::cos (m * angle);
+        }
+
+        chebyshev[(std::size_t) m] = (m == 0 ? 1.0 : 2.0) * sum / order;
+    }
+
+    // cos (w / 2) P (cos w) = sum of b[n] cos ((n + 1/2) w), the amplitude of a G
+    // with taps g[order - 1 - n] = g[order + n] = b[n] / 2.
+    Halfband result;
+    result.taps.assign ((std::size_t) (4 * order - 1), 0.0);
+    result.taps[(std::size_t) (2 * order - 1)] = 0.5;
+    result.ripple = 0.5 * maxError;
+
+    for (int n = 0; n < order; ++n)
+    {
+        const double b = n == 0 ? chebyshev[0] + 0.5 * chebyshev[1]
+                                : 0.5 * (chebyshev[(std::size_t) n] + chebyshev[(std::size_t) n + 1]);
+        result.taps[(std::size_t) (2 * (order - 1 - n))] = 0.25 * b;
+        result.taps[(std::size_t) (2 * (order + n))] = 0.25 * b;
+    }
+
+    return result;
+}
+
+// The shortest equiripple halfband that meets kStopbandDb.
+std::vector<double> shortestHalfband (double passband)
+{
+    const double maxRipple = std::pow (10.0, -kStopbandDb / 20.0);
+    Halfband design;
+
+    for (int order = 1; order <= kMaxHalfbandOrder; ++order)
+    {
+        design = designHalfband (order, passband);
+        if (design.ripple <= maxRipple)
             break;
     }
 
-    return sum;
+    return design.taps;
 }
 } // namespace
 
@@ -44,43 +210,22 @@ void Resampler::prepare (int factor, double baseRate, int maxHostFrames)
     stageRight.assign (stageSize, std::vector<float> {});
 
     const double fp = std::min (20000.0, 0.4535 * baseRate);
-    constexpr double stopbandDb = 100.0;
-    const double beta = 0.1102 * (stopbandDb - 8.7);
-    const double i0Beta = besselI0 (beta);
 
     latency_ = 0;
 
     for (int s = 0; s < stageCount; ++s)
     {
         const double inputRate = baseRate * static_cast<double> (1 << (stageCount - s));
-        const double fstop = 0.5 * inputRate - fp;
-        const double length = (stopbandDb - 8.0)
-                              / (2.285 * 2.0 * kPi * ((fstop - fp) / inputRate))
-                              + 1.0;
-
-        int taps = static_cast<int> (std::ceil (length));
-        if ((taps & 1) == 0)
-            ++taps;
-
+        const std::vector<double> coeff = shortestHalfband (fp / inputRate);
+        const int taps = static_cast<int> (coeff.size());
         const int delay = (taps - 1) / 2;
         Stage& stage = stages[static_cast<std::size_t> (s)];
         stage.taps = taps;
         stage.delay = delay;
 
-        std::vector<double> coeff (static_cast<std::size_t> (taps));
         double sum = 0.0;
-
-        for (int n = 0; n < taps; ++n)
-        {
-            const double x = static_cast<double> (n - delay);
-            const double sinc = x == 0.0 ? 1.0
-                                         : std::sin (0.5 * kPi * x) / (0.5 * kPi * x);
-            const double ratio = delay == 0 ? 0.0 : x / static_cast<double> (delay);
-            const double window = besselI0 (beta * std::sqrt (std::max (0.0, 1.0 - ratio * ratio)))
-                                  / i0Beta;
-            coeff[static_cast<std::size_t> (n)] = sinc * window;
-            sum += sinc * window;
-        }
+        for (const double c : coeff)
+            sum += c;
 
         stage.h.resize (static_cast<std::size_t> (taps));
         for (int n = 0; n < taps; ++n)

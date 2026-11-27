@@ -1,0 +1,3 @@
+[submodule "lib/libgmajor2"]
+	path = lib/libgmajor2
+	url = git@github.com:re-rack/libgmajor2.git

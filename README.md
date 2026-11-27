@@ -1,29 +1,40 @@
-# GMajor2
+# IMajor2
 
-A JUCE 9 VST3 audio-effect plugin that wraps the C17 [libgmajor2](../libgmajor2)
-library. It exposes the library's 36 bit-exact re-creations of the TC Electronic
-G-Major 2 effects through a single effect dropdown and per-effect knob
-automation.
+An iPlug2 VST3 audio-effect plugin that wraps the C17 `libgmajor2` library. It
+exposes the library's 36 bit-exact re-creations of the TC Electronic G-Major 2
+effects through a single effect menu and per-effect knob automation. The editor
+is drawn by IGraphics with the Skia backend on OpenGL 3.
 
 ## Requirements
 
-- CMake 3.22 or newer
-- Ninja and a C++17 compiler
-- The `libgmajor2` source tree (defaults to `../libgmajor2`, override with
-  `-DGM2_DIR=/path/to/libgmajor2`)
-- JUCE 9.0.6, fetched automatically by CMake
+- Linux with the X11, OpenGL, Fontconfig, Expat and FreeType development headers
+  (see iPlug2's Linux prerequisites), plus Python 3, pkg-config and Ninja for
+  the Skia build
+- GNU Make 4.3 or newer, a C17/C++17 compiler, Git, curl and sha256sum
+- The `libgmajor2` sources, a submodule at `lib/libgmajor2`; `make` initialises
+  it when it is missing
 
 ## Build
 
 ```sh
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-ctest --test-dir build --output-on-failure
+git clone --recurse-submodules git@github.com:re-rack/rerack-plugin.git
+cd rerack-plugin
+make            # the VST3 bundle, build/out/IMajor2.vst3
+make test       # build and run the tests
+make install    # copy the bundle into ~/.vst3, replacing an older copy
+make deps       # fetch and build the dependencies, without the plugin
+make clean      # remove build/ and the Skia build leftovers
 ```
 
-The VST3 is written to
-`build/GMajor2_artefacts/Release/VST3/GMajor2.vst3`. Pass
-`-DGM2_DIR=/path/to/libgmajor2` if the library is not next to this project.
+The first `make` fetches pinned iPlug2 and VST3 SDK versions into `deps/` and
+builds iPlug2's pinned Skia into `deps/skia`; that build is long and leaves about
+8.5 GB of sources behind. Later runs reuse it, and `make clean` keeps
+`deps/skia/lib` so they still do. Every fetch and build is skipped once its
+result is in place.
+
+Variables can be overridden on the command line, for example `make -j16`,
+`make VST3_DIR=/usr/local/lib/vst3 install`, `make BUILD=/tmp/imajor2` or
+`make GM2_DIR=../libgmajor2` to use a libgmajor2 checkout outside the submodule.
 
 ## Mix and Out Level
 
@@ -48,9 +59,10 @@ as switching effects does.
 Effects run directly at host rates up to 48 kHz, including 44.1 and 48 kHz, with
 zero latency. Above 48 kHz the plugin divides the rate by the first power of two
 (1, 2, 4, ... 64) that the library accepts, runs the effect at that base rate,
-and converts back to the host rate. The resampling filters' delay is reported to
-the host with `setLatencySamples`. If no power of two produces a valid rate, the
-plugin passes audio through untouched.
+and converts down and back up through equiripple linear-phase half-band FIR
+stages, flat to 20 kHz and 100 dB down in the stopband. The filters' delay,
+74 samples at 96 kHz and 166 at 192 kHz, is reported to the host. If no power
+of two produces a valid rate, the plugin passes audio through untouched.
 
 Tempo-synced knobs follow the host BPM; LFO effects are aligned to the song
 position when playback starts, after an effect switch, and after a position
@@ -58,11 +70,14 @@ jump.
 
 ## Layout
 
-- `Source/PluginProcessor.*` - audio processing, APVTS parameters, state
-- `Source/PluginEditor.*` - fixed-size effect/knob editor
-- `Source/EffectCatalog.*` - effect and knob tables, raw-to-parameter mapping
+- `Source/IMajor2.*` - parameters, audio processing, VST3 parameter titles and text input
+- `Source/IMajor2Editor.cpp` - fixed-size IGraphics editor
+- `Source/config.h` - iPlug2 plugin configuration
+- `Source/EffectCatalog.*` - effect and knob tables, raw-to-parameter mapping, knob value text
 - `Source/EffectEngine.h` - templated engine wrapper around each library module
-- `Source/Resampler.*` - host-rate to base-rate conversion
-- `tests/resampler_test.cpp` - standalone resampler test
+- `Source/Resampler.*` - host-rate to base-rate conversion, Remez half-band filter design
+- `tests/resampler_test.cpp` - resampler latency, passband, aliasing and block-size checks
 - `tests/depop_test.cpp` - the De-pop engines against their effects
-- `CMakeLists.txt` - JUCE fetch, plugin target, test target
+- `tests/knob_format_test.cpp` - knob value text and its parsing
+- `lib/libgmajor2` - the effect library, built by its own Makefile
+- `Makefile` - dependency fetch, Skia build, plugin and test targets

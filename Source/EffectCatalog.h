@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <string>
 
 class IEngine;
 
@@ -64,3 +65,7 @@ int getEffectCount();
 const EffectInfo& getEffectInfo (int index);
 std::unique_ptr<IEngine> createEffectEngine (int index);
 std::unique_ptr<IEngine> createDepopEngine (int index); // null when the effect has no variant
+
+// Display text of an Int knob's raw value, and the raw value nearest to a typed text.
+std::string formatKnobValue (const KnobDef& knob, int raw);
+int parseKnobValue (const KnobDef& knob, const char* text);

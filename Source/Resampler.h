@@ -2,8 +2,8 @@
 
 #include <vector>
 
-// Runs a fixed-rate effect at hostRate / factor: linear-phase half-band FIR
-// stages down, the effect, the same stages back up. Stereo.
+// Runs a fixed-rate effect at hostRate / factor: equiripple linear-phase
+// half-band FIR stages down, the effect, the same stages back up. Stereo.
 class Resampler
 {
 public:

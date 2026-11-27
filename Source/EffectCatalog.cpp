@@ -1,6 +1,12 @@
 #include "EffectEngine.h"
 
+#include <algorithm>
+#include <cctype>
+#include <cmath>
 #include <cstddef>
+#include <cstdio>
+#include <cstdlib>
+#include <limits>
 #include <string>
 
 namespace
@@ -585,6 +591,47 @@ GM2_TRAITS (ReverbAltTraits, reverb_alt);
 #undef GM2_TRAITS_LFO_BEAT
 #undef REVERB_KNOBS
 #undef KNOB
+
+double knobUnitValue (const KnobDef& knob, int raw)
+{
+    switch (knob.unit)
+    {
+        case KnobUnit::Speed: return 0.05 * std::pow (10.0, (double) raw / 80.0);
+        case KnobUnit::Cut: return 20.0 * std::pow (10.0, (double) raw / 20.0);
+        case KnobUnit::EqFreq: return std::pow (10.0, 1.0 + ((double) raw + 24.0) / 80.0);
+        case KnobUnit::EqWidth: return std::pow (2.0, ((double) raw - 10.0) / 3.0);
+        case KnobUnit::AdvDelayMs: return (double) raw / 10.0;
+        case KnobUnit::ReverbDecay: return (double) raw / 10.0;
+        case KnobUnit::UnivibeSeconds: return (double) raw * 0.05;
+        case KnobUnit::Plain:
+        case KnobUnit::Percent:
+        case KnobUnit::Decibels:
+        case KnobUnit::Milliseconds:
+        case KnobUnit::Cents:
+        case KnobUnit::DecibelsPerSecond:
+        case KnobUnit::GateThreshold: break;
+    }
+
+    return (double) raw;
+}
+
+std::string fixed (double value, int decimals, const char* unit)
+{
+    char text[64];
+    std::snprintf (text, sizeof (text), "%.*f %s", decimals, value, unit);
+    return text;
+}
+
+std::string formatHz (double hz)
+{
+    if (hz < 100.0)
+        return fixed (hz, 1, "Hz");
+
+    if (hz < 1000.0)
+        return std::to_string (std::lround (hz)) + " Hz";
+
+    return fixed (hz / 1000.0, 2, "kHz");
+}
 } // namespace
 
 int getEffectCount()
@@ -665,4 +712,92 @@ std::unique_ptr<IEngine> createDepopEngine (int index)
         return std::make_unique<Engine<ReverbAltTraits>> (info);
 
     return {};
+}
+
+std::string formatKnobValue (const KnobDef& knob, int raw)
+{
+    switch (knob.unit)
+    {
+        case KnobUnit::Speed:
+            if (knob.min == 37 && raw == 37)
+                return "Stop";
+
+            {
+                const double hz = knobUnitValue (knob, raw);
+                return fixed (hz, hz < 1.0 ? 3 : 2, "Hz");
+            }
+
+        case KnobUnit::Cut:
+            return formatHz (knobUnitValue (knob, raw));
+
+        case KnobUnit::EqFreq:
+            if (raw == 241)
+                return "Off";
+
+            return formatHz (knobUnitValue (knob, raw));
+
+        case KnobUnit::EqWidth:
+            return fixed (knobUnitValue (knob, raw), 2, "oct");
+
+        case KnobUnit::AdvDelayMs:
+            return fixed (knobUnitValue (knob, raw), 1, "ms");
+
+        case KnobUnit::ReverbDecay:
+            return fixed (knobUnitValue (knob, raw), 1, "s");
+
+        case KnobUnit::UnivibeSeconds:
+            return fixed (knobUnitValue (knob, raw), 2, "s");
+
+        case KnobUnit::GateThreshold:
+            if (raw == -61)
+                return "Off";
+
+            return std::to_string (raw) + " dB";
+
+        case KnobUnit::Percent: return std::to_string (raw) + " %";
+        case KnobUnit::Decibels: return std::to_string (raw) + " dB";
+        case KnobUnit::Milliseconds: return std::to_string (raw) + " ms";
+        case KnobUnit::Cents: return std::to_string (raw) + " cents";
+        case KnobUnit::DecibelsPerSecond: return std::to_string (raw) + " dB/s";
+        case KnobUnit::Plain: break;
+    }
+
+    return std::to_string (raw);
+}
+
+int parseKnobValue (const KnobDef& knob, const char* text)
+{
+    std::string lower (text);
+    std::transform (lower.begin(), lower.end(), lower.begin(),
+                    [] (unsigned char c) { return (char) std::tolower (c); });
+    const auto contains = [&lower] (const char* word) { return lower.find (word) != std::string::npos; };
+
+    if (knob.unit == KnobUnit::GateThreshold && contains ("off"))
+        return -61;
+
+    if (knob.unit == KnobUnit::EqFreq && contains ("off"))
+        return 241;
+
+    if (knob.unit == KnobUnit::Speed && knob.min == 37 && contains ("stop"))
+        return 37;
+
+    double target = std::strtod (text, nullptr);
+
+    if ((knob.unit == KnobUnit::Cut || knob.unit == KnobUnit::EqFreq) && contains ("khz"))
+        target *= 1000.0;
+
+    int best = knob.min;
+    double bestDistance = std::numeric_limits<double>::max();
+
+    for (int raw = knob.min; raw <= knob.max; ++raw)
+    {
+        const double distance = std::abs (knobUnitValue (knob, raw) - target);
+        if (distance < bestDistance)
+        {
+            bestDistance = distance;
+            best = raw;
+        }
+    }
+
+    return best;
 }
