@@ -1,16 +1,16 @@
 #define PLUG_NAME "IMajor2"
-#define PLUG_MFR "tapir"
+#define PLUG_MFR "re-rack"
 #define PLUG_VERSION_HEX 0x00010000
 #define PLUG_VERSION_STR "1.0.0"
 #define PLUG_UNIQUE_ID 'Im2x'
-#define PLUG_MFR_ID 'Tapr'
-#define PLUG_URL_STR "https://github.com/tapir/gmajor2-plugin"
+#define PLUG_MFR_ID 'Rrck'
+#define PLUG_URL_STR "https://github.com/re-rack/rerack-plugin"
 #define PLUG_EMAIL_STR ""
 #define PLUG_COPYRIGHT_STR ""
 #define PLUG_CLASS_NAME IMajor2
 
 #define BUNDLE_NAME "IMajor2"
-#define BUNDLE_MFR "tapir"
+#define BUNDLE_MFR "re-rack"
 #define BUNDLE_DOMAIN "com"
 
 #define PLUG_CHANNEL_IO "1-2 2-2"

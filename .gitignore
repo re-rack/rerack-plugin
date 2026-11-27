@@ -1,5 +1,4 @@
 build/
 .codegraph/
 lib/aaxsdk/*
-!lib/aaxsdk/.gitkeep
 !lib/aaxsdk/PLACE_AAX_SDK_HERE
