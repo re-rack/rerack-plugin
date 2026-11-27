@@ -84,8 +84,14 @@ preset.
 - **Analog Direct** (on by default) models the device's analog dry path: with Direct Hush at
   Pre, the input is added at L/R Dir Level, as on the hardware. Off, the effect outputs only
   what the DSP does. **Output Level** models the output pot, 0 to 100 %. Both are modelled
-  stages, not bit-exact; with Analog Direct off and Output Level at 100 % the output is the
-  DSP's, bit-exact.
+  stages, not bit-exact, and glide over 26 ms when they or the Dir Levels change; with Analog
+  Direct off and Output Level at 100 % the output is the DSP's, bit-exact.
+- **De-pop** (on by default) runs libifx's de-popped variant of the effect. A turn crossfades
+  over 26 ms from the old settings to the new once the click it makes has passed, and from there
+  the output is the effect's, sample for sample. A voice's Delay, Level and Pan, the Delay switch
+  and the type changes are heard only once their knob stops, after the voice's delay or the
+  memory wipe. A click that regenerates through a delay line or enters the reverb still comes
+  back. Flipping the switch restarts the effect.
 - The plugin's latency follows the unit, so switching units makes the host re-read it.
 
 ## Layout

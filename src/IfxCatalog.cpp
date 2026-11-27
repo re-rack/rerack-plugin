@@ -364,7 +364,7 @@ constexpr int knobCount (const KnobDef (&)[N])
 }
 
 #define EFFECT(keyValue, nameValue, table, pageTable) \
-    EffectInfo { keyValue, nameValue, nullptr, table, knobCount (table), false, pageTable, (int) (sizeof (pageTable) / sizeof (pageTable[0])) }
+    EffectInfo { keyValue, nameValue, nullptr, table, knobCount (table), true, pageTable, (int) (sizeof (pageTable) / sizeof (pageTable[0])) }
 
 const EffectInfo kEffects[] = {
     EFFECT ("ifx_reverb", "Reverb", kReverb, kReverbPages),
@@ -408,6 +408,12 @@ IFX_TRAITS (Chorus8Traits, chorus8);
 IFX_TRAITS (PitchTraits, pitch);
 IFX_TRAITS (ChorusReverbTraits, chorus_reverb);
 IFX_TRAITS (PitchReverbTraits, pitch_reverb);
+IFX_TRAITS (ReverbAltTraits, reverb_alt);
+IFX_TRAITS (DelayAltTraits, delay_alt);
+IFX_TRAITS (Chorus8AltTraits, chorus8_alt);
+IFX_TRAITS (PitchAltTraits, pitch_alt);
+IFX_TRAITS (ChorusReverbAltTraits, chorus_reverb_alt);
+IFX_TRAITS (PitchReverbAltTraits, pitch_reverb_alt);
 
 #undef IFX_TRAITS
 } // namespace
@@ -432,6 +438,22 @@ std::unique_ptr<IEngine> createIfxEngine (int index)
         case 3: return std::make_unique<Engine<PitchTraits>> (kEffects[3]);
         case 4: return std::make_unique<Engine<ChorusReverbTraits>> (kEffects[4]);
         case 5: return std::make_unique<Engine<PitchReverbTraits>> (kEffects[5]);
+        default: break;
+    }
+
+    return {};
+}
+
+std::unique_ptr<IEngine> createIfxDepopEngine (int index)
+{
+    switch (index)
+    {
+        case 0: return std::make_unique<Engine<ReverbAltTraits>> (kEffects[0]);
+        case 1: return std::make_unique<Engine<DelayAltTraits>> (kEffects[1]);
+        case 2: return std::make_unique<Engine<Chorus8AltTraits>> (kEffects[2]);
+        case 3: return std::make_unique<Engine<PitchAltTraits>> (kEffects[3]);
+        case 4: return std::make_unique<Engine<ChorusReverbAltTraits>> (kEffects[4]);
+        case 5: return std::make_unique<Engine<PitchReverbAltTraits>> (kEffects[5]);
         default: break;
     }
 

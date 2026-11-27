@@ -90,6 +90,7 @@ VintageDigital::VintageDigital (const InstanceInfo& info)
 
         knobBase[(size_t) unit].reserve ((size_t) count);
         engines[(size_t) unit].reserve ((size_t) count);
+        depopEngines[(size_t) unit].reserve ((size_t) count);
 
         for (int effect = 0; effect < count; ++effect)
         {
@@ -97,8 +98,7 @@ VintageDigital::VintageDigital (const InstanceInfo& info)
             effectParam->SetDisplayText (effect, effectInfo.name);
             knobBase[(size_t) unit].push_back (param);
             engines[(size_t) unit].push_back (createEffectEngine (unit, effect));
-            if (unit == kUnitGMajor2)
-                depopEngines.push_back (createDepopEngine (unit, effect));
+            depopEngines[(size_t) unit].push_back (createDepopEngine (unit, effect));
 
             for (int knobIndex = 0; knobIndex < effectInfo.knobCount; ++knobIndex, ++param)
             {
@@ -259,7 +259,7 @@ void VintageDigital::ProcessBlock (sample** inputs, sample** outputs, int nFrame
     }
 
     // Flipping De-pop restarts the effect's state, as switching effects does.
-    IEngine* depopEngine = unit == kUnitGMajor2 ? depopEngines[(size_t) effectIndex].get() : nullptr;
+    IEngine* depopEngine = depopEngines[(size_t) unit][(size_t) effectIndex].get();
     IEngine& engine = GetParam (kDepopParam)->Bool() && depopEngine != nullptr
                           ? *depopEngine
                           : *engines[(size_t) unit][(size_t) effectIndex];

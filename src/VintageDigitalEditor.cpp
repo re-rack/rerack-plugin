@@ -25,7 +25,6 @@ constexpr float kValueWidth = 96.f;
 enum ETags
 {
     kDepopTag = 1,
-    kDepopLabelTag,
     kPageTag,
     kEffectMenuTag // + unit
 };
@@ -259,8 +258,7 @@ void VintageDigital::layoutEditor (IGraphics& graphics)
     y += kRowHeight + kGap;
 
     graphics.AttachControl (new ITextControl (IRECT (kMargin, y, kMargin + kLabelWidth, y + kRowHeight),
-                                              "De-pop", kLabelText),
-                            kDepopLabelTag);
+                                              "De-pop", kLabelText));
     const float toggleTop = y + 0.5f * (kRowHeight - kToggleHeight);
     graphics
         .AttachControl (new IVToggleControl (IRECT (controlLeft, toggleTop, controlLeft + kToggleWidth,
@@ -269,15 +267,18 @@ void VintageDigital::layoutEditor (IGraphics& graphics)
                         kDepopTag)
         ->SetTooltip ("Removes the clicks the device makes when this effect's knobs turn fast; "
                       "once they settle the output is the device's.");
-    graphics.AttachControl (new PageMenu (row (y), ifxPage, [this] { showEffect (*GetUI()); }), kPageTag);
     y += kRowHeight + kGap;
 
-    const float knobTop = y;
+    // The G Major 2's effects have no pages; the Intellifex's page menu takes a row of its own.
+    const float g2KnobTop = y;
+    graphics.AttachControl (new PageMenu (row (y), ifxPage, [this] { showEffect (*GetUI()); }), kPageTag);
+    y += kRowHeight + kGap;
+    const float ifxKnobTop = y;
 
     const auto addRows = [&] (int unit, int effect, const std::string& group, const int* knobs, int count) {
         const auto& info = getEffectInfo (unit, effect);
         const int base = knobBase[(size_t) unit][(size_t) effect];
-        float rowTop = knobTop;
+        float rowTop = unit == kUnitIntellifex ? ifxKnobTop : g2KnobTop;
 
         for (int i = 0; i < count; ++i, rowTop += kRowHeight + kGap)
         {
@@ -348,8 +349,6 @@ void VintageDigital::showEffect (IGraphics& graphics)
     for (int menuUnit = 0; menuUnit < kUnitCount; ++menuUnit)
         graphics.GetControlWithTag (kEffectMenuTag + menuUnit)->Hide (menuUnit != unit);
 
-    graphics.GetControlWithTag (kDepopLabelTag)->Hide (unit != kUnitGMajor2);
-    graphics.GetControlWithTag (kDepopTag)->Hide (unit != kUnitGMajor2);
     graphics.GetControlWithTag (kDepopTag)->SetDisabled (! info.depop);
     graphics.GetControlWithTag (kPageTag)->Hide (info.pageCount == 0);
     graphics.GetControlWithTag (kPageTag)->SetDirty (false);

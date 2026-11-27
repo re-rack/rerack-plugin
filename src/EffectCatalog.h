@@ -81,7 +81,7 @@ struct EffectInfo
     const char* family; // null lists the effect outside any family submenu
     const KnobDef* knobs;
     int knobCount;
-    bool depop; // the library has a de-popped variant of it, gm2_X_alt
+    bool depop; // the library has a de-popped variant of it, gm2_X_alt or ifx_X_alt
     const PageInfo* pages = nullptr; // null shows every knob at once
     int pageCount = 0;
 };

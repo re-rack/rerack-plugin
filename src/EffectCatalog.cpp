@@ -780,7 +780,7 @@ std::unique_ptr<IEngine> createEffectEngine (int unit, int index)
 
 std::unique_ptr<IEngine> createDepopEngine (int unit, int index)
 {
-    return unit == kUnitIntellifex ? nullptr : createG2DepopEngine (index);
+    return unit == kUnitIntellifex ? createIfxDepopEngine (index) : createG2DepopEngine (index);
 }
 
 std::string formatKnobValue (const KnobDef& knob, int raw, int linked)

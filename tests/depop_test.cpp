@@ -74,69 +74,73 @@ int main()
     if (gm2_context_init (&context, kRate) != 0)
         return 1;
 
-    int variants = 0;
+    std::array<int, kUnitCount> variants {};
 
-    for (int index = 0; index < getEffectCount (kUnitGMajor2); ++index)
+    for (int unit = 0; unit < kUnitCount; ++unit)
     {
-        const auto& info = getEffectInfo (kUnitGMajor2, index);
-        auto depop = createDepopEngine (kUnitGMajor2, index);
-        check ((depop != nullptr) == info.depop, info.key, "has an engine exactly when it has a variant");
-
-        if (depop == nullptr)
-            continue;
-
-        ++variants;
-        auto exact = createEffectEngine (kUnitGMajor2, index);
-        std::array<int, kMaxKnobs> values {};
-        for (int knob = 0; knob < info.knobCount; ++knob)
-            values[(size_t) knob] = info.knobs[knob].def;
-
-        exact->prepare (context, values.data(), kBeatMs);
-        depop->prepare (context, values.data(), kBeatMs);
-        check (exact->isValid() && depop->isValid(), info.key, "sets up at the defaults");
-
-        Signal signal;
-        check (run (*exact, *depop, signal, kLead) == 0, info.key, "equal before any turn");
-
-        // Every knob to its maximum in one block, each back to its default one knob a
-        // block, then ten fast turns of each knob between 33 % and 66 %.
-        long turning = 0;
-        for (int knob = 0; knob < info.knobCount; ++knob)
-            values[(size_t) knob] = info.knobs[knob].max;
-        exact->update (values.data(), kBeatMs);
-        depop->update (values.data(), kBeatMs);
-        turning += run (*exact, *depop, signal, kBlock * 64);
-
-        for (int knob = 0; knob < info.knobCount; ++knob)
+        for (int index = 0; index < getEffectCount (unit); ++index)
         {
-            values[(size_t) knob] = info.knobs[knob].def;
+            const auto& info = getEffectInfo (unit, index);
+            auto depop = createDepopEngine (unit, index);
+            check ((depop != nullptr) == info.depop, info.key, "has an engine exactly when it has a variant");
+
+            if (depop == nullptr)
+                continue;
+
+            ++variants[(size_t) unit];
+            auto exact = createEffectEngine (unit, index);
+            std::array<int, kMaxKnobs> values {};
+            for (int knob = 0; knob < info.knobCount; ++knob)
+                values[(size_t) knob] = info.knobs[knob].def;
+
+            exact->prepare (context, values.data(), kBeatMs);
+            depop->prepare (context, values.data(), kBeatMs);
+            check (exact->isValid() && depop->isValid(), info.key, "sets up at the defaults");
+
+            Signal signal;
+            check (run (*exact, *depop, signal, kLead) == 0, info.key, "equal before any turn");
+
+            // Every knob to its maximum in one block, each back to its default one knob a
+            // block, then ten fast turns of each knob between 33 % and 66 %.
+            long turning = 0;
+            for (int knob = 0; knob < info.knobCount; ++knob)
+                values[(size_t) knob] = info.knobs[knob].max;
             exact->update (values.data(), kBeatMs);
             depop->update (values.data(), kBeatMs);
-            turning += run (*exact, *depop, signal, kBlock);
-        }
+            turning += run (*exact, *depop, signal, kBlock * 64);
 
-        for (int knob = 0; knob < info.knobCount; ++knob)
-        {
-            const auto& def = info.knobs[knob];
-            for (int turn = 0; turn < 10; ++turn)
+            for (int knob = 0; knob < info.knobCount; ++knob)
             {
-                const double share = turn % 2 == 0 ? 0.33 : 0.66;
-                values[(size_t) knob] = def.min + (int) std::lround (share * (def.max - def.min));
+                values[(size_t) knob] = info.knobs[knob].def;
                 exact->update (values.data(), kBeatMs);
                 depop->update (values.data(), kBeatMs);
                 turning += run (*exact, *depop, signal, kBlock);
             }
-            values[(size_t) knob] = def.def;
-            exact->update (values.data(), kBeatMs);
-            depop->update (values.data(), kBeatMs);
-        }
 
-        turning += run (*exact, *depop, signal, kSettle);
-        check (turning > 0, info.key, "plays its own path while the turns settle");
-        check (run (*exact, *depop, signal, kCompare) == 0, info.key, "equal once settled");
+            for (int knob = 0; knob < info.knobCount; ++knob)
+            {
+                const auto& def = info.knobs[knob];
+                for (int turn = 0; turn < 10; ++turn)
+                {
+                    const double share = turn % 2 == 0 ? 0.33 : 0.66;
+                    values[(size_t) knob] = def.min + (int) std::lround (share * (def.max - def.min));
+                    exact->update (values.data(), kBeatMs);
+                    depop->update (values.data(), kBeatMs);
+                    turning += run (*exact, *depop, signal, kBlock);
+                }
+                values[(size_t) knob] = def.def;
+                exact->update (values.data(), kBeatMs);
+                depop->update (values.data(), kBeatMs);
+            }
+
+            turning += run (*exact, *depop, signal, kSettle);
+            check (turning > 0, info.key, "plays its own path while the turns settle");
+            check (run (*exact, *depop, signal, kCompare) == 0, info.key, "equal once settled");
+        }
     }
 
-    check (variants == 9, "catalog", "nine effects have a variant");
+    check (variants[kUnitGMajor2] == 9, "catalog", "nine G Major 2 effects have a variant");
+    check (variants[kUnitIntellifex] == 6, "catalog", "every Intellifex effect has a variant");
     std::printf ("%s\n", failures == 0 ? "depop_test: PASS" : "depop_test: FAIL");
     return failures == 0 ? 0 : 1;
 }

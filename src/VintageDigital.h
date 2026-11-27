@@ -50,7 +50,7 @@ private:
 
     std::array<std::vector<int>, kUnitCount> knobBase; // parameter index of each effect's first knob
     std::array<std::vector<std::unique_ptr<IEngine>>, kUnitCount> engines;
-    std::vector<std::unique_ptr<IEngine>> depopEngines;
+    std::array<std::vector<std::unique_ptr<IEngine>>, kUnitCount> depopEngines; // null without a variant
     std::vector<KnobParam> paramKnob;
     std::vector<int> ifxPage; // the editor's page per Intellifex effect
 
