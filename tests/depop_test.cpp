@@ -76,17 +76,17 @@ int main()
 
     int variants = 0;
 
-    for (int index = 0; index < getEffectCount(); ++index)
+    for (int index = 0; index < getEffectCount (kUnitGMajor2); ++index)
     {
-        const auto& info = getEffectInfo (index);
-        auto depop = createDepopEngine (index);
+        const auto& info = getEffectInfo (kUnitGMajor2, index);
+        auto depop = createDepopEngine (kUnitGMajor2, index);
         check ((depop != nullptr) == info.depop, info.key, "has an engine exactly when it has a variant");
 
         if (depop == nullptr)
             continue;
 
         ++variants;
-        auto exact = createEffectEngine (index);
+        auto exact = createEffectEngine (kUnitGMajor2, index);
         std::array<int, kMaxKnobs> values {};
         for (int knob = 0; knob < info.knobCount; ++knob)
             values[(size_t) knob] = info.knobs[knob].def;

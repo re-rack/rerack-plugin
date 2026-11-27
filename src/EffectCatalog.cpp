@@ -1,4 +1,5 @@
 #include "EffectEngine.h"
+#include "IfxCatalog.h"
 
 #include <algorithm>
 #include <cctype>
@@ -6,6 +7,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <limits>
 #include <string>
 
@@ -592,10 +594,39 @@ GM2_TRAITS (ReverbAltTraits, reverb_alt);
 #undef REVERB_KNOBS
 #undef KNOB
 
-double knobUnitValue (const KnobDef& knob, int raw)
+constexpr double kHushReleaseMs[] = { 25, 50, 75, 100, 150, 200, 300, 400, 600, 800 };
+constexpr double kDuckerReleaseSeconds[] = { 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2,
+                                             1.4, 1.6, 1.8, 2.0, 2.4, 2.8, 3.4, 4.0, 6.0, 9.0 };
+
+// The Intellifex's 0 dB level scale as its display shows it: whole dB down to -20, then half dB.
+// The +6 dB scale is the same 6 dB higher.
+double ifxLevelDb (int raw)
+{
+    constexpr int kCoarse[] = { -48, -42, -38, -36, -34, -32 };
+
+    if (raw <= 0)
+        return -std::numeric_limits<double>::infinity();
+    if (raw <= 6)
+        return kCoarse[raw - 1];
+    if (raw <= 18)
+        return -31.0 + (raw - 7);
+
+    return -20.0 + 0.5 * (raw - 18);
+}
+
+double knobUnitValue (const KnobDef& knob, int raw, int linked)
 {
     switch (knob.unit)
     {
+        case KnobUnit::IfxLevel6: return ifxLevelDb (raw) + 6.0;
+        case KnobUnit::IfxLevel0: return ifxLevelDb (raw);
+        case KnobUnit::IfxThreshold: return -92.0 + 3.0 * raw;
+        case KnobUnit::IfxHushRelease: return kHushReleaseMs[std::clamp (raw, 0, 9)];
+        case KnobUnit::IfxDuckerRelease: return kDuckerReleaseSeconds[std::clamp (raw, 0, 19)];
+        case KnobUnit::IfxPitch: return (raw - 120) * 20.0;
+        case KnobUnit::IfxFine: return raw - 20.0;
+        case KnobUnit::IfxVoiceDelay: return 2.0 * raw;
+        case KnobUnit::IfxDelayTime: return raw * (linked == 2 ? 10.0 : 5.0); // 2-Tap
         case KnobUnit::Speed: return 0.05 * std::pow (10.0, (double) raw / 80.0);
         case KnobUnit::Cut: return 20.0 * std::pow (10.0, (double) raw / 20.0);
         case KnobUnit::EqFreq: return std::pow (10.0, 1.0 + ((double) raw + 24.0) / 80.0);
@@ -609,10 +640,18 @@ double knobUnitValue (const KnobDef& knob, int raw)
         case KnobUnit::Milliseconds:
         case KnobUnit::Cents:
         case KnobUnit::DecibelsPerSecond:
-        case KnobUnit::GateThreshold: break;
+        case KnobUnit::GateThreshold:
+        case KnobUnit::IfxPan: break;
     }
 
     return (double) raw;
+}
+
+std::string signedCents (double cents)
+{
+    char text[32];
+    std::snprintf (text, sizeof (text), cents > 0.0 ? "+%.0f cents" : "%.0f cents", cents);
+    return text;
 }
 
 std::string fixed (double value, int decimals, const char* unit)
@@ -632,19 +671,23 @@ std::string formatHz (double hz)
 
     return fixed (hz / 1000.0, 2, "kHz");
 }
-} // namespace
 
-int getEffectCount()
+std::string ifxLevelText (double db, int raw)
 {
-    return kEffectCount;
+    if (raw <= 0)
+        return "-inf dB";
+
+    char text[32];
+    std::snprintf (text, sizeof (text), raw <= 18 ? "%.0f dB" : (db > 0.0 ? "%+.1f dB" : "%.1f dB"), db);
+    return text;
 }
 
-const EffectInfo& getEffectInfo (int index)
+const EffectInfo& g2EffectInfo (int index)
 {
     return kEffects[index < 0 ? 0 : (index >= kEffectCount ? kEffectCount - 1 : index)];
 }
 
-std::unique_ptr<IEngine> createEffectEngine (int index)
+std::unique_ptr<IEngine> createG2Engine (int index)
 {
     switch (index)
     {
@@ -690,7 +733,7 @@ std::unique_ptr<IEngine> createEffectEngine (int index)
     return {};
 }
 
-std::unique_ptr<IEngine> createDepopEngine (int index)
+std::unique_ptr<IEngine> createG2DepopEngine (int index)
 {
     if (index < 0 || index >= kEffectCount || ! kEffects[index].depop)
         return {};
@@ -713,40 +756,88 @@ std::unique_ptr<IEngine> createDepopEngine (int index)
 
     return {};
 }
+} // namespace
 
-std::string formatKnobValue (const KnobDef& knob, int raw)
+const char* getUnitName (int unit)
 {
+    return unit == kUnitIntellifex ? "Intellifex LTD" : "G Major 2";
+}
+
+int getEffectCount (int unit)
+{
+    return unit == kUnitIntellifex ? getIfxEffectCount() : kEffectCount;
+}
+
+const EffectInfo& getEffectInfo (int unit, int index)
+{
+    return unit == kUnitIntellifex ? getIfxEffectInfo (index) : g2EffectInfo (index);
+}
+
+std::unique_ptr<IEngine> createEffectEngine (int unit, int index)
+{
+    return unit == kUnitIntellifex ? createIfxEngine (index) : createG2Engine (index);
+}
+
+std::unique_ptr<IEngine> createDepopEngine (int unit, int index)
+{
+    return unit == kUnitIntellifex ? nullptr : createG2DepopEngine (index);
+}
+
+std::string formatKnobValue (const KnobDef& knob, int raw, int linked)
+{
+    const double value = knobUnitValue (knob, raw, linked);
+
     switch (knob.unit)
     {
         case KnobUnit::Speed:
             if (knob.min == 37 && raw == 37)
                 return "Stop";
 
-            {
-                const double hz = knobUnitValue (knob, raw);
-                return fixed (hz, hz < 1.0 ? 3 : 2, "Hz");
-            }
+            return fixed (value, value < 1.0 ? 3 : 2, "Hz");
 
         case KnobUnit::Cut:
-            return formatHz (knobUnitValue (knob, raw));
+            return formatHz (value);
 
         case KnobUnit::EqFreq:
             if (raw == 241)
                 return "Off";
 
-            return formatHz (knobUnitValue (knob, raw));
+            return formatHz (value);
 
         case KnobUnit::EqWidth:
-            return fixed (knobUnitValue (knob, raw), 2, "oct");
+            return fixed (value, 2, "oct");
 
         case KnobUnit::AdvDelayMs:
-            return fixed (knobUnitValue (knob, raw), 1, "ms");
+            return fixed (value, 1, "ms");
 
         case KnobUnit::ReverbDecay:
-            return fixed (knobUnitValue (knob, raw), 1, "s");
+            return fixed (value, 1, "s");
 
         case KnobUnit::UnivibeSeconds:
-            return fixed (knobUnitValue (knob, raw), 2, "s");
+            return fixed (value, 2, "s");
+
+        case KnobUnit::IfxLevel6:
+        case KnobUnit::IfxLevel0:
+            return ifxLevelText (value, raw);
+
+        case KnobUnit::IfxDuckerRelease:
+            return fixed (value, 1, "s");
+
+        case KnobUnit::IfxPitch:
+        case KnobUnit::IfxFine:
+            return signedCents (value);
+
+        case KnobUnit::IfxPan:
+            // As the device's display draws it: an arrow towards the side that is louder.
+            if (raw == 50)
+                return "<50>";
+
+            return raw < 50 ? "<" + std::to_string (raw) : std::to_string (raw) + ">";
+
+        case KnobUnit::IfxThreshold: return std::to_string (std::lround (value)) + " dB";
+        case KnobUnit::IfxHushRelease:
+        case KnobUnit::IfxVoiceDelay:
+        case KnobUnit::IfxDelayTime: return std::to_string (std::lround (value)) + " ms";
 
         case KnobUnit::GateThreshold:
             if (raw == -61)
@@ -765,7 +856,7 @@ std::string formatKnobValue (const KnobDef& knob, int raw)
     return std::to_string (raw);
 }
 
-int parseKnobValue (const KnobDef& knob, const char* text)
+int parseKnobValue (const KnobDef& knob, const char* text, int linked)
 {
     std::string lower (text);
     std::transform (lower.begin(), lower.end(), lower.begin(),
@@ -781,6 +872,13 @@ int parseKnobValue (const KnobDef& knob, const char* text)
     if (knob.unit == KnobUnit::Speed && knob.min == 37 && contains ("stop"))
         return 37;
 
+    const bool ifxLevel = knob.unit == KnobUnit::IfxLevel6 || knob.unit == KnobUnit::IfxLevel0;
+    if (ifxLevel && (contains ("inf") || contains ("off")))
+        return 0;
+
+    while (*text != '\0' && std::strchr ("0123456789+-.", *text) == nullptr)
+        ++text;
+
     double target = std::strtod (text, nullptr);
 
     if ((knob.unit == KnobUnit::Cut || knob.unit == KnobUnit::EqFreq) && contains ("khz"))
@@ -791,7 +889,7 @@ int parseKnobValue (const KnobDef& knob, const char* text)
 
     for (int raw = knob.min; raw <= knob.max; ++raw)
     {
-        const double distance = std::abs (knobUnitValue (knob, raw) - target);
+        const double distance = std::abs (knobUnitValue (knob, raw, linked) - target);
         if (distance < bestDistance)
         {
             bestDistance = distance;

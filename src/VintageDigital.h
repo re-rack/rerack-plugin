@@ -3,22 +3,26 @@
 #include "IPlug_include_in_plug_hdr.h"
 
 #include "EffectEngine.h"
+#include "RationalResampler.h"
 #include "Resampler.h"
 
+#include <array>
 #include <memory>
 #include <vector>
 
 enum EParams
 {
-    kEffectParam = 0,
+    kUnitParam = 0,
+    kG2EffectParam,
+    kIfxEffectParam,
     kDepopParam,
     kFirstKnobParam
 };
 
-class IMajor2 final : public iplug::Plugin
+class VintageDigital final : public iplug::Plugin
 {
 public:
-    explicit IMajor2 (const iplug::InstanceInfo& info);
+    explicit VintageDigital (const iplug::InstanceInfo& info);
 
     void OnReset() override;
     void ProcessBlock (iplug::sample** inputs, iplug::sample** outputs, int nFrames) override;
@@ -30,18 +34,29 @@ public:
                                                          Steinberg::Vst::ParamValue& valueNormalized) override;
 
 private:
-    int currentEffect() const;
+    struct KnobParam
+    {
+        const KnobDef* knob = nullptr; // null for the unit, effect and De-pop parameters
+        int linkParam = -1;
+        bool linkTarget = false; // another knob's text shows this one's value
+    };
+
+    int currentUnit() const;
+    int currentEffect (int unit) const;
+    int latencyFor (int unit) const;
+    int linkedValue (int paramIdx) const;
     void layoutEditor (iplug::igraphics::IGraphics& graphics);
     void showEffect (iplug::igraphics::IGraphics& graphics);
 
-    std::vector<int> knobBase; // parameter index of each effect's first knob
-    std::vector<const KnobDef*> paramKnob; // null for the effect and De-pop parameters
-
-    std::vector<std::unique_ptr<IEngine>> engines;
+    std::array<std::vector<int>, kUnitCount> knobBase; // parameter index of each effect's first knob
+    std::array<std::vector<std::unique_ptr<IEngine>>, kUnitCount> engines;
     std::vector<std::unique_ptr<IEngine>> depopEngines;
+    std::vector<KnobParam> paramKnob;
+    std::vector<int> ifxPage; // the editor's page per Intellifex effect
 
     gm2_context context {};
     Resampler resampler;
+    RationalResampler ifxResampler;
     double hostSampleRate = 0.0;
     int maxHostFrames = 0;
     int resampleFactor = 1;
