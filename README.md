@@ -3,16 +3,12 @@
 An iPlug2 VST3 audio-effect plugin that wraps the C17 `libgmajor2` library. It
 exposes the library's 36 bit-exact re-creations of the TC Electronic G-Major 2
 effects through a single effect menu and per-effect knob automation. The editor
-is drawn by IGraphics with the Skia backend on OpenGL 3.
+is drawn by IGraphics with the NanoVG backend on OpenGL 3.
 
 ## Requirements
 
-- Linux with the X11, OpenGL, Fontconfig, Expat and FreeType development headers
-  (see iPlug2's Linux prerequisites), plus Python 3, pkg-config and Ninja for
-  the Skia build
-- GNU Make 4.3 or newer, a C17/C++17 compiler, Git, curl and sha256sum
-- The `libgmajor2` sources, a submodule at `lib/libgmajor2`; `make` initialises
-  it when it is missing
+- Linux with the X11, xcb and OpenGL development headers
+- GNU Make 4.3 or newer, a C17/C++17 compiler, Git and pkg-config
 
 ## Build
 
@@ -22,19 +18,15 @@ cd rerack-plugin
 make            # the VST3 bundle, build/out/IMajor2.vst3
 make test       # build and run the tests
 make install    # copy the bundle into ~/.vst3, replacing an older copy
-make deps       # fetch and build the dependencies, without the plugin
-make clean      # remove build/ and the Skia build leftovers
+make clean      # remove build/
 ```
 
-The first `make` fetches pinned iPlug2 and VST3 SDK versions into `deps/` and
-builds iPlug2's pinned Skia into `deps/skia`; that build is long and leaves about
-8.5 GB of sources behind. Later runs reuse it, and `make clean` keeps
-`deps/skia/lib` so they still do. Every fetch and build is skipped once its
-result is in place.
+`make` checks out the submodules the build needs if a clone left them empty.
 
 Variables can be overridden on the command line, for example `make -j16`,
-`make VST3_DIR=/usr/local/lib/vst3 install`, `make BUILD=/tmp/imajor2` or
-`make GM2_DIR=../libgmajor2` to use a libgmajor2 checkout outside the submodule.
+`make VST3_DIR=/usr/local/lib/vst3 install`, `make BUILD=/tmp/imajor2`,
+`make IPLUG2=../iPlug2` or `make GM2_DIR=../libgmajor2` to build against
+checkouts outside the submodules.
 
 ## Mix and Out Level
 
@@ -80,4 +72,10 @@ jump.
 - `tests/depop_test.cpp` - the De-pop engines against their effects
 - `tests/knob_format_test.cpp` - knob value text and its parsing
 - `lib/libgmajor2` - the effect library, built by its own Makefile
-- `Makefile` - dependency fetch, Skia build, plugin and test targets
+- `lib/iplug2` - iPlug2 at the pinned revision
+- `lib/vst3sdk` - the VST3 SDK as three component submodules (`base`,
+  `pluginterfaces`, `public.sdk`), the directory itself is the SDK root
+- `lib/libifx`, `lib/clap`, `lib/clap-helpers` - re-rack effects library and the
+  CLAP SDK, not built yet
+- `lib/aaxsdk` - extract Avid's AAX SDK here (developer.avid.com), not built yet
+- `Makefile` - submodule checkout, plugin and test targets

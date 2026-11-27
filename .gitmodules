@@ -1,3 +1,30 @@
 [submodule "lib/libgmajor2"]
 	path = lib/libgmajor2
 	url = git@github.com:re-rack/libgmajor2.git
+[submodule "lib/iplug2"]
+	path = lib/iplug2
+	url = https://github.com/iPlug2/iPlug2.git
+	shallow = true
+[submodule "lib/vst3sdk/base"]
+	path = lib/vst3sdk/base
+	url = https://github.com/steinbergmedia/vst3_base.git
+	shallow = true
+[submodule "lib/vst3sdk/pluginterfaces"]
+	path = lib/vst3sdk/pluginterfaces
+	url = https://github.com/steinbergmedia/vst3_pluginterfaces.git
+	shallow = true
+[submodule "lib/vst3sdk/public.sdk"]
+	path = lib/vst3sdk/public.sdk
+	url = https://github.com/steinbergmedia/vst3_public_sdk.git
+	shallow = true
+[submodule "lib/libifx"]
+	path = lib/libifx
+	url = git@github.com:re-rack/libifx.git
+[submodule "lib/clap"]
+	path = lib/clap
+	url = https://github.com/free-audio/clap.git
+	shallow = true
+[submodule "lib/clap-helpers"]
+	path = lib/clap-helpers
+	url = https://github.com/free-audio/clap-helpers.git
+	shallow = true
