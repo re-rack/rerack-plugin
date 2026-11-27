@@ -91,18 +91,18 @@ IPLUG_INCLUDE_DIRS := \
 PLUGIN_FLAGS := \
   -DIGRAPHICS_GL3 -DIGRAPHICS_NANOVG -DIMajor2_vst3_EXPORTS -DIPLUG_DSP=1 -DIPLUG_EDITOR=1 \
   -DNOMINMAX -DOS_LINUX -DRELEASE -DSAMPLE_TYPE_FLOAT -DVST3_API \
-  -I$(CURDIR)/Source -I$(CURDIR) -I$(GM2_DIR)/src \
+  -I$(CURDIR)/src -I$(CURDIR) -I$(GM2_DIR)/src \
   $(addprefix -isystem ,$(IPLUG_INCLUDE_DIRS)) \
   $(OPT) -std=c++17 -fPIC -Wno-deprecated-declarations -fsigned-char \
   -include $(IPLUG2)/IPlug/IPlugLinuxHeaders.h \
   -Wno-multichar -Wno-stringop-overflow -Wno-stringop-overread
 PLUGIN_C_FLAGS := $(filter-out -std=c++17,$(PLUGIN_FLAGS))
-TEST_FLAGS := -I$(CURDIR)/Source -I$(GM2_DIR)/src $(OPT) -std=c++17
-RESAMPLER_FLAGS := -I$(CURDIR)/Source $(OPT) -std=c++17 -fPIC
+TEST_FLAGS := -I$(CURDIR)/src -I$(GM2_DIR)/src $(OPT) -std=c++17
+RESAMPLER_FLAGS := -I$(CURDIR)/src $(OPT) -std=c++17 -fPIC
 
 # --- sources ----------------------------------------------------------------
 
-OUR_SOURCES := Source/IMajor2.cpp Source/IMajor2Editor.cpp Source/EffectCatalog.cpp
+OUR_SOURCES := src/IMajor2.cpp src/IMajor2Editor.cpp src/EffectCatalog.cpp
 
 IPLUG2_SOURCES := $(addprefix $(IPLUG2)/, \
   IPlug/VST3/IPlugVST3.cpp \
@@ -147,9 +147,9 @@ PLUGIN_C_SOURCES := \
   $(IGRAPHICS_DIR)/glad_GL3/src/glad.c \
   $(IGRAPHICS_DIR)/NanoVG/src/nanovg.c
 
-RESAMPLER_SOURCE := Source/Resampler.cpp
+RESAMPLER_SOURCE := src/Resampler.cpp
 TEST_SOURCES := tests/resampler_test.cpp tests/depop_test.cpp tests/knob_format_test.cpp \
-                Source/EffectCatalog.cpp
+                src/EffectCatalog.cpp
 
 PLUGIN_OBJS := $(addprefix $(BUILD)/obj/plugin/,$(addsuffix .o,$(basename $(OUR_SOURCES) $(IPLUG2_SOURCES) $(VST3_SOURCES))))
 STRICT_PLUGIN_OBJS := $(addprefix $(BUILD)/obj/plugin/,$(addsuffix .o,$(basename $(OUR_SOURCES))))
@@ -198,12 +198,12 @@ $(BUILD)/tests/resampler_test: $(BUILD)/obj/test/tests/resampler_test.o $(RESAMP
 	$(CXX) $(OPT) -o $@ $^
 
 $(BUILD)/tests/depop_test: $(BUILD)/obj/test/tests/depop_test.o \
-                           $(BUILD)/obj/test/Source/EffectCatalog.o $(GM2_LIB)
+                           $(BUILD)/obj/test/src/EffectCatalog.o $(GM2_LIB)
 	@mkdir -p $(@D)
 	$(CXX) $(OPT) -o $@ $^
 
 $(BUILD)/tests/knob_format_test: $(BUILD)/obj/test/tests/knob_format_test.o \
-                                 $(BUILD)/obj/test/Source/EffectCatalog.o $(GM2_LIB)
+                                 $(BUILD)/obj/test/src/EffectCatalog.o $(GM2_LIB)
 	@mkdir -p $(@D)
 	$(CXX) $(OPT) -o $@ $^
 

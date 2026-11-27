@@ -62,12 +62,12 @@ jump.
 
 ## Layout
 
-- `Source/IMajor2.*` - parameters, audio processing, VST3 parameter titles and text input
-- `Source/IMajor2Editor.cpp` - fixed-size IGraphics editor
-- `Source/config.h` - iPlug2 plugin configuration
-- `Source/EffectCatalog.*` - effect and knob tables, raw-to-parameter mapping, knob value text
-- `Source/EffectEngine.h` - templated engine wrapper around each library module
-- `Source/Resampler.*` - host-rate to base-rate conversion, Remez half-band filter design
+- `src/IMajor2.*` - parameters, audio processing, VST3 parameter titles and text input
+- `src/IMajor2Editor.cpp` - fixed-size IGraphics editor
+- `src/config.h` - iPlug2 plugin configuration
+- `src/EffectCatalog.*` - effect and knob tables, raw-to-parameter mapping, knob value text
+- `src/EffectEngine.h` - templated engine wrapper around each library module
+- `src/Resampler.*` - host-rate to base-rate conversion, Remez half-band filter design
 - `tests/resampler_test.cpp` - resampler latency, passband, aliasing and block-size checks
 - `tests/depop_test.cpp` - the De-pop engines against their effects
 - `tests/knob_format_test.cpp` - knob value text and its parsing
